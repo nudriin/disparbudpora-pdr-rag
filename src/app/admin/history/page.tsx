@@ -2,18 +2,16 @@ import { getSupabaseAdmin } from "@/lib/supabase/client";
 import AuthedLayout from "@/components/admin/AuthedLayout";
 import HistoryClient from "@/components/admin/HistoryClient";
 
-async function getHistory(page = 1, limit = 20) {
+async function getHistory() {
   const supabase = getSupabaseAdmin();
-  const from = (page - 1) * limit;
 
   const { data, count, error } = await supabase
     .from("conversation_history")
     .select("*", { count: "exact" })
-    .order("created_at", { ascending: false })
-    .range(from, from + limit - 1);
+    .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
-  return { conversations: data ?? [], total: count ?? 0, page, limit };
+  return { conversations: data ?? [], total: count ?? 0 };
 }
 
 export default async function HistoryPage() {
@@ -21,15 +19,17 @@ export default async function HistoryPage() {
 
   return (
     <AuthedLayout>
-    <div>
-      <h1 style={{ fontSize: "1.5rem", fontWeight: "700", color: "#1a202c", marginBottom: "0.5rem" }}>
-        History Percakapan
-      </h1>
-      <p style={{ color: "#718096", marginBottom: "2rem", fontSize: "0.9rem" }}>
-        Seluruh percakapan pengguna dengan bot Telegram. Total: <strong>{total}</strong> pesan.
-      </p>
-      <HistoryClient initialConversations={conversations} initialTotal={total} />
-    </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <div>
+          <h1 style={{ fontSize: "1.5rem", fontWeight: "700", color: "#1a202c", margin: 0 }}>
+            💬 History Percakapan Telegram (Chat View)
+          </h1>
+          <p style={{ color: "#718096", fontSize: "0.875rem", marginTop: "0.25rem" }}>
+            Riwayat obrolan pengguna dengan chatbot Telegram. Dikelompokkan per pengguna (Total <strong>{total}</strong> pesan).
+          </p>
+        </div>
+        <HistoryClient initialConversations={conversations} initialTotal={total} />
+      </div>
     </AuthedLayout>
   );
 }

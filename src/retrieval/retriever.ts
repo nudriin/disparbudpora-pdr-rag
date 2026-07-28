@@ -7,6 +7,8 @@ export interface RetrievalResult {
   childContent: string;
   source: string;
   similarity: number;
+  parentId?: string;
+  childId?: string;
 }
 
 /**
@@ -85,6 +87,8 @@ export async function retrieveParentDocuments(
       childContent: results.documents[0][i] ?? "",
       source: metadata.source as string,
       similarity,
+      parentId,
+      childId: results.ids[0][i],
     });
   }
 

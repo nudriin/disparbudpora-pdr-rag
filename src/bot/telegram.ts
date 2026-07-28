@@ -186,6 +186,10 @@ if (bot) {
         ...generation.context.map((r) => ({
           source: r.source,
           similarity: r.similarity,
+          parentId: r.parentId ?? null,
+          childId: r.childId ?? null,
+          parentContent: r.parentContent,
+          childContent: r.childContent,
           snippet: r.parentContent.substring(0, 200) + "...",
         })),
       ] as Record<string, unknown>[];
