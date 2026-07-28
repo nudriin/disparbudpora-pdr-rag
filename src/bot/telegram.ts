@@ -1,9 +1,10 @@
 import { Telegraf } from "telegraf";
 import { message } from "telegraf/filters";
 import { retrieveParentDocuments } from "../retrieval/retriever";
-import { generateAnswer } from "../generation/generator";
+import { generateAnswer, reformulateQuery } from "../generation/generator";
 import { getSupabaseAdmin } from "../lib/supabase/client";
 import { getGeneratorConfig, getEmbeddingConfig } from "../config/settings";
+import { getRecentChatHistory, formatChatHistory } from "../lib/supabase/historyHelper";
 
 // ============================================================
 // INISIALISASI BOT
@@ -142,13 +143,27 @@ if (bot) {
       console.log(`   ⚙️  Provider LLM: ${providerUsed} | Model: ${modelUsed}`);
       console.log(`   🧬 Embedding   : ${embeddingConfig.provider} | ${embeddingConfig.model} (dim=${embeddingConfig.dimensions})`);
 
-      // 1. Retrieval: cari parent documents yang relevan di ChromaDB
-      console.log(`   🔎 Retrieval dimuat...`);
-      // Timeout untuk retrieval di-perpanjang, karena retrieval pertama
-      // bisa lambat (init singleton embedding + auth Google API / download model HF).
-      // (Jika masih timeout, jalankan test-retrieval.ts untuk diagnosis)
+      // 0b. Ambil 5 riwayat percakapan terakhir pengguna dari Supabase
+      const rawHistory = await getRecentChatHistory(chatId, 5);
+      const chatHistoryFormatted = formatChatHistory(rawHistory);
+      if (rawHistory.length > 0) {
+        console.log(`   📜 Memori percakapan dimuat: ${rawHistory.length} pasang obrolan terakhir`);
+      }
+
+      // 0c. Conversational Query Reformulation (Contextualization)
+      //     Jika ada riwayat, ubah kata ganti ambigu ("datanya", "lokasinya") menjadi kueri eksplisit
+      let searchQuery = userMessage;
+      if (rawHistory.length > 0) {
+        searchQuery = await reformulateQuery(userMessage, chatHistoryFormatted, generatorConfig);
+        if (searchQuery !== userMessage) {
+          console.log(`   🔄 Kueri direformulasi: "${userMessage}" ➔ "${searchQuery}"`);
+        }
+      }
+
+      // 1. Retrieval: cari parent documents di ChromaDB menggunakan searchQuery
+      console.log(`   🔎 Retrieval dimuat (${searchQuery === userMessage ? "kueri asli" : "kueri reformulasi"})...`);
       const results = await Promise.race([
-        retrieveParentDocuments(userMessage, {
+        retrieveParentDocuments(searchQuery, {
           nResults: 5,
           minSimilarity: 0.4,
           embeddingConfig,
@@ -162,11 +177,10 @@ if (bot) {
       ]);
       console.log(`   ✅ Retrieval selesai: ${results.length} konteks ditemukan`);
 
-      // 2. Generation: hasilkan jawaban dari LLM (timeout 120 detik)
-      //    Replicate model 70B bisa sangat lambat jika cold start.
+      // 2. Generation: hasilkan jawaban dari LLM dengan menyertakan Konteks + Memory History
       console.log(`   🧠 Generation dimuat...`);
       const generation = await Promise.race([
-        generateAnswer(userMessage, results, generatorConfig),
+        generateAnswer(userMessage, results, generatorConfig, chatHistoryFormatted),
         new Promise<never>((_, rej) =>
           setTimeout(
             () => rej(new Error("Generation timeout (LLM lambat — coba model 8B / ganti ke Gemini)")),

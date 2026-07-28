@@ -109,14 +109,59 @@ export function detectWasAnswered(answer: string): boolean {
   );
 }
 
+export const REFORMULATION_SYSTEM_PROMPT = `Diberikan riwayat percakapan antara Pengguna dan Asisten Virtual Pariwisata Kota Palangka Raya, serta pertanyaan terbaru pengguna.
+Tugasmu adalah merumuskan ulang pertanyaan terbaru tersebut menjadi SATU kalimat pertanyaan pencarian yang berdiri sendiri (standalone search query), eksplisit, dan jelas tanpa kata ganti ambigu (seperti "datanya", "itu", "tersebut", "lokasinya", "harganya", "disana").
+
+ATURAN REFORMULASI:
+1. Jika pertanyaan terbaru mengandung kata ganti ambigu, ganti kata ganti tersebut dengan entitas spesifik yang dibahas pada riwayat percakapan.
+2. JANGAN menjawab pertanyaannya, HANYA kembalikan teks kalimat pertanyaan yang sudah dirumuskan ulang.
+3. Jika pertanyaan terbaru sudah jelas dan tidak membutuhkan konteks riwayat, kembalikan pertanyaan terbaru apa adanya.
+4. Jawab HANYA dengan kalimat pertanyaan hasil reformulasi tanpa awalan atau penjelasan tambahan.
+
+RIWAYAT PERCAKAPAN:
+{chatHistory}`;
+
+export const REFORMULATION_HUMAN_TEMPLATE = `Pertanyaan Terbaru: {question}`;
+
 /**
- * Menghasilkan jawaban dari LLM berdasarkan konteks parent documents.
+ * Merumuskan ulang pertanyaan pengguna ber-kata ganti ambigu menjadi kueri pencarian mandiri.
+ */
+export async function reformulateQuery(
+  question: string,
+  chatHistoryFormatted: string,
+  config: GeneratorConfig = DEFAULT_GENERATOR_CONFIG
+): Promise<string> {
+  if (!chatHistoryFormatted.trim()) {
+    return question;
+  }
+
+  try {
+    const llm = createLLMGenerator(config);
+    const result = await llm.runPrompt(
+      REFORMULATION_SYSTEM_PROMPT,
+      REFORMULATION_HUMAN_TEMPLATE,
+      {
+        chatHistory: chatHistoryFormatted,
+        question,
+      }
+    );
+    const cleaned = result.trim().replace(/^["']|["']$/g, "");
+    return cleaned.length > 0 ? cleaned : question;
+  } catch (err) {
+    console.warn("[reformulateQuery] Failed to reformulate, using original:", err);
+    return question;
+  }
+}
+
+/**
+ * Menghasilkan jawaban dari LLM berdasarkan konteks parent documents & riwayat percakapan.
  * Ini adalah fungsi entry-point utama untuk Pipeline 2 (Generation).
  */
 export async function generateAnswer(
   question: string,
   context: RetrievalResult[],
-  config: GeneratorConfig = DEFAULT_GENERATOR_CONFIG
+  config: GeneratorConfig = DEFAULT_GENERATOR_CONFIG,
+  chatHistoryFormatted?: string
 ): Promise<GenerationResult> {
   // Jika tidak ada konteks sama sekali, langsung kembalikan fallback
   if (context.length === 0) {
@@ -132,7 +177,12 @@ export async function generateAnswer(
   const llm = createLLMGenerator(config);
   const contextString = formatContext(context);
 
-  const answer = await llm.runPrompt(SYSTEM_PROMPT, HUMAN_TEMPLATE, {
+  let systemPromptWithHistory = SYSTEM_PROMPT;
+  if (chatHistoryFormatted && chatHistoryFormatted.trim()) {
+    systemPromptWithHistory += `\n\nRIWAYAT PERCAKAPAN SEBELUMNYA:\n${chatHistoryFormatted}`;
+  }
+
+  const answer = await llm.runPrompt(systemPromptWithHistory, HUMAN_TEMPLATE, {
     context: contextString,
     question,
   });
