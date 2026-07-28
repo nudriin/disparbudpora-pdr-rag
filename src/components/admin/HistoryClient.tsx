@@ -558,52 +558,46 @@ export default function HistoryClient({ initialConversations }: Props) {
                                                 gap: "0.75rem",
                                               }}
                                             >
-                                              {/* 📊 TABEL METADATA AKADEMIK (BUKTI SKRIPSI / PDR PROOF) */}
+                                              {/* 📊 METADATA AKADEMIK (BUKTI SKRIPSI / PDR PROOF) */}
                                               <div
                                                 style={{
                                                   background: "#f8fafc",
                                                   border: "1px solid #e2e8f0",
                                                   borderRadius: "8px",
-                                                  padding: "0.65rem 0.85rem",
-                                                  display: "grid",
-                                                  gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                                                  padding: "0.75rem",
+                                                  display: "flex",
+                                                  flexDirection: "column",
                                                   gap: "0.5rem",
                                                   fontSize: "0.75rem",
                                                 }}
                                               >
-                                                <div>
-                                                  <span style={{ color: "#718096", display: "block" }}>🔑 Parent Chunk ID:</span>
-                                                  <strong style={{ color: "#2b6cb0", fontFamily: "monospace", fontSize: "0.78rem" }}>
+                                                {/* Baris Badges Metrik */}
+                                                <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
+                                                  <span style={{ background: "#f0fff4", color: "#276749", border: "1px solid #c6f6d5", padding: "0.25rem 0.55rem", borderRadius: "6px", fontWeight: "600" }}>
+                                                    🎯 Cosine Similarity: {ctx.similarity ? `${(ctx.similarity * 100).toFixed(2)}% (${ctx.similarity.toFixed(4)})` : "95.00% (0.9500)"}
+                                                  </span>
+                                                  <span style={{ background: "#edf2f7", color: "#4a5568", border: "1px solid #cbd5e0", padding: "0.25rem 0.55rem", borderRadius: "6px", fontWeight: "600" }}>
+                                                    📏 Cosine Distance: {ctx.similarity ? (2 * (1 - ctx.similarity)).toFixed(4) : "0.1000"}
+                                                  </span>
+                                                  <span style={{ background: "#ebf8ff", color: "#2b6cb0", border: "1px solid #bee3f8", padding: "0.25rem 0.55rem", borderRadius: "6px", fontWeight: "600" }}>
+                                                    📊 Parent: {fullText.length} Karakter | Child: {(ctx.childContent || ctx.snippet || "").length} Karakter
+                                                  </span>
+                                                </div>
+
+                                                {/* Baris Parent Chunk ID */}
+                                                <div style={{ background: "#ffffff", padding: "0.45rem 0.65rem", borderRadius: "6px", border: "1px solid #e2e8f0" }}>
+                                                  <span style={{ color: "#718096", fontSize: "0.72rem", fontWeight: "600", display: "block" }}>🔑 Parent Chunk ID:</span>
+                                                  <span style={{ color: "#2b6cb0", fontFamily: "monospace", fontSize: "0.78rem", fontWeight: "600", wordBreak: "break-all", display: "block", marginTop: "0.1rem" }}>
                                                     {ctx.parentId || `${ctx.source.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, "_")}-parent-${idx}`}
-                                                  </strong>
+                                                  </span>
                                                 </div>
 
-                                                <div>
-                                                  <span style={{ color: "#718096", display: "block" }}>📌 Child Chunk ID:</span>
-                                                  <strong style={{ color: "#dd6b20", fontFamily: "monospace", fontSize: "0.78rem" }}>
+                                                {/* Baris Child Chunk ID */}
+                                                <div style={{ background: "#ffffff", padding: "0.45rem 0.65rem", borderRadius: "6px", border: "1px solid #e2e8f0" }}>
+                                                  <span style={{ color: "#718096", fontSize: "0.72rem", fontWeight: "600", display: "block" }}>📌 Child Chunk ID:</span>
+                                                  <span style={{ color: "#dd6b20", fontFamily: "monospace", fontSize: "0.78rem", fontWeight: "600", wordBreak: "break-all", display: "block", marginTop: "0.1rem" }}>
                                                     {ctx.childId || `${ctx.source.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, "_")}-parent-${idx}-child-0`}
-                                                  </strong>
-                                                </div>
-
-                                                <div>
-                                                  <span style={{ color: "#718096", display: "block" }}>🎯 Cosine Similarity:</span>
-                                                  <strong style={{ color: "#276749" }}>
-                                                    {ctx.similarity ? `${(ctx.similarity * 100).toFixed(2)}% (${ctx.similarity.toFixed(4)})` : "95.00% (0.9500)"}
-                                                  </strong>
-                                                </div>
-
-                                                <div>
-                                                  <span style={{ color: "#718096", display: "block" }}>📏 Cosine Distance:</span>
-                                                  <strong style={{ color: "#4a5568" }}>
-                                                    {ctx.similarity ? (2 * (1 - ctx.similarity)).toFixed(4) : "0.1000"}
-                                                  </strong>
-                                                </div>
-
-                                                <div>
-                                                  <span style={{ color: "#718096", display: "block" }}>📊 Ukuran Konteks:</span>
-                                                  <strong style={{ color: "#2d3748" }}>
-                                                    Parent: {fullText.length} Karakter | Child: {(ctx.childContent || ctx.snippet || "").length} Karakter
-                                                  </strong>
+                                                  </span>
                                                 </div>
                                               </div>
 
