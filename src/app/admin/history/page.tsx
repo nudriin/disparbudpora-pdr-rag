@@ -19,7 +19,7 @@ export default async function HistoryPage() {
 
   return (
     <AuthedLayout>
-      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "1rem", height: "calc(100vh - 130px)", overflow: "hidden" }}>
         <div>
           <h1
             style={{

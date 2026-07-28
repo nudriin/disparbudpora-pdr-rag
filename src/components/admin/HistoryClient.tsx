@@ -95,13 +95,14 @@ export default function HistoryClient({ initialConversations }: Props) {
         display: "grid",
         gridTemplateColumns: "320px 1fr",
         gap: "1.25rem",
-        height: "calc(100vh - 170px)",
-        minHeight: "560px",
+        height: "100%",
+        minHeight: 0,
         background: "#ffffff",
         borderRadius: "12px",
         padding: "1rem",
         boxShadow: "0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03)",
         border: "1px solid #c5c6cd",
+        overflow: "hidden",
       }}
     >
       {/* ============================================================ */}
@@ -111,8 +112,11 @@ export default function HistoryClient({ initialConversations }: Props) {
         style={{
           display: "flex",
           flexDirection: "column",
+          height: "100%",
+          minHeight: 0,
           borderRight: "1px solid #e0e3e5",
           paddingRight: "1rem",
+          overflow: "hidden",
         }}
       >
         {/* Search Input dengan Material Icon */}
@@ -277,7 +281,7 @@ export default function HistoryClient({ initialConversations }: Props) {
       {/* ============================================================ */}
       {/* AREA UTAMA KANAN: Ruang Obrolan Google Stitch Style */}
       {/* ============================================================ */}
-      <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, overflow: "hidden" }}>
         {activeUser ? (
           <>
             {/* Header Chat */}
@@ -329,6 +333,7 @@ export default function HistoryClient({ initialConversations }: Props) {
             <div
               style={{
                 flex: 1,
+                minHeight: 0,
                 overflowY: "auto",
                 padding: "1.25rem",
                 background: "#f7f9fb",
