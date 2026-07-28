@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { GeneratorConfig, LLMProvider } from "@/generation/types";
 
 interface GeneratorSettingsProps {
@@ -56,14 +56,12 @@ export default function GeneratorSettingsClient({
     contextCount: number;
   }>(null);
 
-  // Ketika provider berganti, reset model preset
-  useEffect(() => {
+  function handleProviderChange(newProvider: LLMProvider) {
+    setProvider(newProvider);
     if (!useCustomModel) {
-      setModel(
-        provider === "gemini" ? GEMINI_PRESETS[0] : REPLICATE_PRESETS[0]
-      );
+      setModel(newProvider === "gemini" ? GEMINI_PRESETS[0] : REPLICATE_PRESETS[0]);
     }
-  }, [provider, useCustomModel]);
+  }
 
   const currentPresets = provider === "gemini" ? GEMINI_PRESETS : REPLICATE_PRESETS;
   const keyAvailable = provider === "gemini" ? env.geminiKeyPresent : env.replicateKeyPresent;
@@ -152,7 +150,7 @@ export default function GeneratorSettingsClient({
                   type="radio"
                   name="provider"
                   checked={provider === p}
-                  onChange={() => setProvider(p)}
+                  onChange={() => handleProviderChange(p)}
                 />
                 <div>
                   <div style={{ fontWeight: "600" }}>
