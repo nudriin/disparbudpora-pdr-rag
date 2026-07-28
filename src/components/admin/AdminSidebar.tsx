@@ -4,10 +4,10 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 const NAV_ITEMS = [
-  { href: "/admin",            label: "Dashboard",  icon: "📊" },
-  { href: "/admin/documents",  label: "Dokumen",    icon: "📄" },
-  { href: "/admin/history",    label: "History Chat", icon: "💬" },
-  { href: "/admin/settings",   label: "Settings LLM", icon: "⚙️" },
+  { href: "/admin", label: "Dashboard", icon: "dashboard" },
+  { href: "/admin/documents", label: "Dokumen", icon: "description" },
+  { href: "/admin/history", label: "History Chat", icon: "forum" },
+  { href: "/admin/settings", label: "Settings LLM", icon: "settings" },
 ];
 
 interface AdminSidebarProps {
@@ -25,22 +25,30 @@ export default function AdminSidebar({ adminName }: AdminSidebarProps) {
   }
 
   return (
-    <aside style={{
-      width: "240px", background: "#1a202c", color: "white",
-      display: "flex", flexDirection: "column", flexShrink: 0,
-    }}>
-      {/* Header */}
-      <div style={{ padding: "1.5rem", borderBottom: "1px solid #2d3748" }}>
-        <div style={{ fontSize: "1rem", fontWeight: "700" }}>🗺️ Admin Panel</div>
-        <div style={{ fontSize: "0.75rem", color: "#a0aec0", marginTop: "0.25rem" }}>
+    <aside
+      style={{
+        width: "260px",
+        background: "#091426",
+        color: "#ffffff",
+        display: "flex",
+        flexDirection: "column",
+        flexShrink: 0,
+        borderRight: "1px solid #1e293b",
+      }}
+    >
+      {/* Header Brand */}
+      <div style={{ padding: "1.5rem 1.5rem 1.25rem", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+        <h2 style={{ fontSize: "1.25rem", fontWeight: "700", color: "#ffffff", margin: 0, letterSpacing: "-0.01em" }}>
+          Admin Panel
+        </h2>
+        <p style={{ fontSize: "0.75rem", color: "#8590a6", margin: "0.2rem 0 0 0" }}>
           Pariwisata Palangka Raya
-        </div>
+        </p>
       </div>
 
-      {/* Navigasi */}
-      <nav style={{ flex: 1, padding: "1rem 0" }}>
+      {/* Navigasi Utama */}
+      <nav style={{ flex: 1, padding: "1rem 0.75rem", display: "flex", flexDirection: "column", gap: "0.35rem" }}>
         {NAV_ITEMS.map((item) => {
-          // /admin exact match atau prefix untuk sub-pages
           const isActive =
             item.href === "/admin"
               ? pathname === "/admin"
@@ -51,35 +59,89 @@ export default function AdminSidebar({ adminName }: AdminSidebarProps) {
               key={item.href}
               href={item.href}
               style={{
-                display: "flex", alignItems: "center", gap: "0.75rem",
-                padding: "0.65rem 1.5rem", textDecoration: "none",
-                color: isActive ? "white" : "#a0aec0",
-                background: isActive ? "#2d3748" : "transparent",
-                borderLeft: isActive ? "3px solid #63b3ed" : "3px solid transparent",
-                fontSize: "0.9rem", transition: "all 0.15s",
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+                padding: "0.75rem 1rem",
+                borderRadius: "8px",
+                textDecoration: "none",
+                color: isActive ? "#ffffff" : "rgba(255,255,255,0.65)",
+                background: isActive ? "rgba(255, 255, 255, 0.08)" : "transparent",
+                fontSize: "0.875rem",
+                fontWeight: isActive ? "600" : "400",
+                transition: "all 0.15s ease",
               }}
             >
-              <span>{item.icon}</span>
+              {isActive && (
+                <div
+                  style={{
+                    position: "absolute",
+                    left: 0,
+                    top: "15%",
+                    bottom: "15%",
+                    width: "4px",
+                    backgroundColor: "#2170e4",
+                    borderRadius: "0 4px 4px 0",
+                  }}
+                />
+              )}
+              <span className="material-symbols-outlined" style={{ fontSize: "20px", color: isActive ? "#2170e4" : "inherit" }}>
+                {item.icon}
+              </span>
               <span>{item.label}</span>
             </Link>
           );
         })}
       </nav>
 
-      {/* Footer — info user & logout */}
-      <div style={{ padding: "1rem 1.5rem", borderTop: "1px solid #2d3748" }}>
-        <div style={{ fontSize: "0.8rem", color: "#a0aec0", marginBottom: "0.75rem",
-          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-          👤 {adminName}
+      {/* Footer User Info & Logout */}
+      <div style={{ padding: "1rem 1rem 1.25rem", borderTop: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.65rem", padding: "0.25rem 0.5rem" }}>
+          <span className="material-symbols-outlined" style={{ fontSize: "28px", color: "#adc6ff" }}>
+            account_circle
+          </span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div
+              style={{
+                fontSize: "0.85rem",
+                fontWeight: "600",
+                color: "#ffffff",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {adminName}
+            </div>
+            <div style={{ fontSize: "0.68rem", color: "#8590a6", letterSpacing: "0.05em", fontWeight: "600" }}>
+              ONLINE
+            </div>
+          </div>
         </div>
+
         <button
           onClick={handleLogout}
           style={{
-            width: "100%", padding: "0.5rem", background: "#e53e3e",
-            color: "white", border: "none", borderRadius: "6px",
-            fontSize: "0.85rem", cursor: "pointer", fontWeight: "500"
+            width: "100%",
+            padding: "0.6rem 0.85rem",
+            background: "#ba1a1a",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            fontSize: "0.85rem",
+            fontWeight: "600",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.4rem",
+            transition: "all 0.15s ease",
           }}
         >
+          <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+            logout
+          </span>
           Keluar
         </button>
       </div>

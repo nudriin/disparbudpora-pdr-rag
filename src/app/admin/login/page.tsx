@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
 
 function LoginForm() {
   const router = useRouter();
@@ -43,28 +42,65 @@ function LoginForm() {
   }
 
   return (
-    <div style={{
-      minHeight: "100vh", display: "flex", alignItems: "center",
-      justifyContent: "center", background: "#f0f4f8", fontFamily: "system-ui, sans-serif"
-    }}>
-      <div style={{
-        background: "white", padding: "2.5rem", borderRadius: "12px",
-        boxShadow: "0 4px 24px rgba(0,0,0,0.1)", width: "100%", maxWidth: "400px"
-      }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#091426",
+        padding: "1.5rem",
+      }}
+    >
+      <div
+        style={{
+          background: "#ffffff",
+          padding: "2.5rem",
+          borderRadius: "16px",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
+          width: "100%",
+          maxWidth: "400px",
+          border: "1px solid #1e293b",
+        }}
+      >
         <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-          <h1 style={{ fontSize: "1.5rem", fontWeight: "700", color: "#1a202c", margin: 0 }}>
-            🗺️ Admin Panel
+          <div
+            style={{
+              width: "48px",
+              height: "48px",
+              borderRadius: "12px",
+              background: "#d8e2ff",
+              color: "#0058be",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto 1rem auto",
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: "28px" }}>
+              lock
+            </span>
+          </div>
+          <h1 style={{ fontSize: "1.5rem", fontWeight: "700", color: "#091426", margin: 0, letterSpacing: "-0.01em" }}>
+            Admin Panel
           </h1>
-          <p style={{ color: "#718096", marginTop: "0.5rem", fontSize: "0.9rem" }}>
-            Chatbot Pariwisata Palangka Raya
+          <p style={{ color: "#45474c", marginTop: "0.35rem", fontSize: "0.875rem" }}>
+            Tourism Intelligence Palangka Raya
           </p>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: "1rem" }}>
-            <label style={{ display: "block", fontSize: "0.85rem", fontWeight: "600",
-              color: "#4a5568", marginBottom: "0.4rem" }}>
-              Email
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+          <div>
+            <label
+              style={{
+                display: "block",
+                fontSize: "0.85rem",
+                fontWeight: "600",
+                color: "#091426",
+                marginBottom: "0.4rem",
+              }}
+            >
+              Email Administrator
             </label>
             <input
               type="email"
@@ -73,18 +109,29 @@ function LoginForm() {
               required
               autoComplete="email"
               style={{
-                width: "100%", padding: "0.65rem 0.85rem", border: "1.5px solid #e2e8f0",
-                borderRadius: "8px", fontSize: "0.95rem", boxSizing: "border-box",
-                outline: "none", transition: "border-color 0.2s"
+                width: "100%",
+                padding: "0.75rem 0.85rem",
+                border: "1px solid #c5c6cd",
+                borderRadius: "8px",
+                fontSize: "0.9rem",
+                boxSizing: "border-box",
+                fontFamily: "inherit",
               }}
-              placeholder="admin@example.com"
+              placeholder="admin@palangkaraya.go.id"
             />
           </div>
 
-          <div style={{ marginBottom: "1.5rem" }}>
-            <label style={{ display: "block", fontSize: "0.85rem", fontWeight: "600",
-              color: "#4a5568", marginBottom: "0.4rem" }}>
-              Password
+          <div>
+            <label
+              style={{
+                display: "block",
+                fontSize: "0.85rem",
+                fontWeight: "600",
+                color: "#091426",
+                marginBottom: "0.4rem",
+              }}
+            >
+              Kata Sandi
             </label>
             <input
               type="password"
@@ -93,20 +140,37 @@ function LoginForm() {
               required
               autoComplete="current-password"
               style={{
-                width: "100%", padding: "0.65rem 0.85rem", border: "1.5px solid #e2e8f0",
-                borderRadius: "8px", fontSize: "0.95rem", boxSizing: "border-box",
+                width: "100%",
+                padding: "0.75rem 0.85rem",
+                border: "1px solid #c5c6cd",
+                borderRadius: "8px",
+                fontSize: "0.9rem",
+                boxSizing: "border-box",
+                fontFamily: "inherit",
               }}
               placeholder="••••••••"
             />
           </div>
 
           {error && (
-            <div style={{
-              background: "#fff5f5", border: "1px solid #fed7d7", color: "#c53030",
-              padding: "0.75rem 1rem", borderRadius: "8px", marginBottom: "1rem",
-              fontSize: "0.875rem"
-            }}>
-              ⚠️ {error}
+            <div
+              style={{
+                background: "#ffdad6",
+                border: "1px solid #ffdad6",
+                color: "#ba1a1a",
+                padding: "0.75rem 1rem",
+                borderRadius: "8px",
+                fontSize: "0.85rem",
+                fontWeight: "600",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.4rem",
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+                error
+              </span>
+              {error}
             </div>
           )}
 
@@ -114,13 +178,27 @@ function LoginForm() {
             type="submit"
             disabled={loading}
             style={{
-              width: "100%", padding: "0.75rem", background: loading ? "#a0aec0" : "#3182ce",
-              color: "white", border: "none", borderRadius: "8px", fontSize: "1rem",
-              fontWeight: "600", cursor: loading ? "not-allowed" : "pointer",
-              transition: "background 0.2s"
+              width: "100%",
+              padding: "0.8rem",
+              background: loading ? "#75777d" : "#091426",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              fontSize: "0.95rem",
+              fontWeight: "600",
+              cursor: loading ? "not-allowed" : "pointer",
+              transition: "background 0.15s ease",
+              marginTop: "0.5rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.4rem",
             }}
           >
-            {loading ? "Masuk..." : "Masuk"}
+            <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>
+              login
+            </span>
+            {loading ? "Masuk..." : "Masuk ke Admin Panel"}
           </button>
         </form>
       </div>

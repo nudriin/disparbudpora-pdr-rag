@@ -18,15 +18,30 @@ export default async function DocumentsPage() {
 
   return (
     <AuthedLayout>
-    <div>
-      <h1 style={{ fontSize: "1.5rem", fontWeight: "700", color: "#1a202c", marginBottom: "0.5rem" }}>
-        Manajemen Dokumen
-      </h1>
-      <p style={{ color: "#718096", marginBottom: "2rem", fontSize: "0.9rem" }}>
-        Upload dokumen pariwisata, lihat status ingesti, dan kelola vector store.
-      </p>
-      <DocumentsClient initialDocuments={documents} />
-    </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+        <div>
+          <h1
+            style={{
+              fontSize: "1.75rem",
+              fontWeight: "700",
+              color: "#091426",
+              margin: 0,
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: "28px", color: "#0058be" }}>
+              description
+            </span>
+            Manajemen Dokumen & Vector Store
+          </h1>
+          <p style={{ color: "#45474c", fontSize: "0.875rem", marginTop: "0.25rem" }}>
+            Upload dokumen pariwisata, pantau status ingesti PDR, dan kelola database vektor ChromaDB.
+          </p>
+        </div>
+        <DocumentsClient initialDocuments={documents} />
+      </div>
     </AuthedLayout>
   );
 }

@@ -40,7 +40,7 @@ export default function GeneratorSettingsClient({
   );
 
   const [saving, setSaving] = useState(false);
-  const [saveMsg, setSaveMsg] = useState<string | null>(null);
+  const [saveMsg, setSaveMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   // Test form
   const [testQuestion, setTestQuestion] = useState<string>(
@@ -83,12 +83,12 @@ export default function GeneratorSettingsClient({
       });
       const body = await res.json();
       if (!res.ok) throw new Error(body.error || "Gagal menyimpan");
-      setSaveMsg("✅ Pengaturan berhasil disimpan!");
+      setSaveMsg({ type: "success", text: "Pengaturan generator berhasil disimpan!" });
     } catch (err) {
-      setSaveMsg("❌ Gagal: " + (err as Error).message);
+      setSaveMsg({ type: "error", text: (err as Error).message });
     } finally {
       setSaving(false);
-      setTimeout(() => setSaveMsg(null), 4000);
+      setTimeout(() => setSaveMsg(null), 5000);
     }
   }
 
@@ -117,85 +117,110 @@ export default function GeneratorSettingsClient({
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
-      {/* ==== FORM SETTINGS ==== */}
-      <form onSubmit={handleSave} style={{
-        background: "white", borderRadius: "12px", padding: "1.5rem",
-        boxShadow: "0 1px 8px rgba(0,0,0,0.08)", display: "flex",
-        flexDirection: "column", gap: "1.25rem",
-      }}>
+      {/* ==== FORM SETTINGS (Google Stitch Design) ==== */}
+      <form
+        onSubmit={handleSave}
+        style={{
+          background: "#ffffff",
+          borderRadius: "12px",
+          padding: "1.5rem",
+          border: "1px solid #c5c6cd",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "1.25rem",
+        }}
+      >
         <div>
-          <h2 style={{ fontSize: "1.1rem", fontWeight: "600", color: "#2d3748", margin: 0 }}>
-            ⚙️ Pengaturan Generator LLM
+          <h2 style={{ fontSize: "1.1rem", fontWeight: "600", color: "#091426", margin: 0, display: "flex", alignItems: "center", gap: "0.4rem" }}>
+            <span className="material-symbols-outlined" style={{ color: "#0058be" }}>tune</span>
+            Pengaturan Generator LLM
           </h2>
-          <p style={{ color: "#718096", fontSize: "0.85rem", marginTop: "0.25rem" }}>
-            Pilih provider dan model yang akan digunakan oleh chatbot Telegram.
+          <p style={{ color: "#45474c", fontSize: "0.85rem", marginTop: "0.25rem" }}>
+            Pilih provider dan model AI yang akan merumuskan jawaban chatbot Telegram.
           </p>
         </div>
 
-        {/* Provider */}
+        {/* Provider Radio Choice Cards */}
         <div>
           <label style={labelStyle}>Provider LLM</label>
           <div style={{ display: "flex", gap: "0.75rem" }}>
-            {(["gemini", "replicate"] as LLMProvider[]).map((p) => (
-              <label key={p} style={{
-                flex: 1, display: "flex", alignItems: "center", gap: "0.5rem",
-                padding: "0.75rem", borderRadius: "8px", border:
-                  provider === p
-                    ? "2px solid #3182ce"
-                    : "1px solid #e2e8f0",
-                background: provider === p ? "#ebf8ff" : "white",
-                cursor: "pointer", fontSize: "0.9rem",
-              }}>
-                <input
-                  type="radio"
-                  name="provider"
-                  checked={provider === p}
-                  onChange={() => handleProviderChange(p)}
-                />
-                <div>
-                  <div style={{ fontWeight: "600" }}>
-                    {p === "gemini" ? "🤖 Google Gemini" : "🦙 Replicate (LLaMA, Mixtral, dll)"}
+            {(["gemini", "replicate"] as LLMProvider[]).map((p) => {
+              const isSelected = provider === p;
+              const isKeyOk = p === "gemini" ? env.geminiKeyPresent : env.replicateKeyPresent;
+
+              return (
+                <label
+                  key={p}
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.65rem",
+                    padding: "0.85rem",
+                    borderRadius: "8px",
+                    border: isSelected ? "2px solid #0058be" : "1px solid #c5c6cd",
+                    background: isSelected ? "#d8e2ff" : "#ffffff",
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="provider"
+                    checked={isSelected}
+                    onChange={() => handleProviderChange(p)}
+                  />
+                  <div>
+                    <div style={{ fontWeight: "700", color: "#091426", fontSize: "0.875rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: "18px", color: p === "gemini" ? "#0058be" : "#744210" }}>
+                        {p === "gemini" ? "smart_toy" : "psychology"}
+                      </span>
+                      {p === "gemini" ? "Google Gemini" : "Replicate (LLaMA)"}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "0.72rem",
+                        fontWeight: "600",
+                        color: isKeyOk ? "#276749" : "#ba1a1a",
+                        marginTop: "0.15rem",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.2rem",
+                      }}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
+                        {isKeyOk ? "check_circle" : "warning"}
+                      </span>
+                      {isKeyOk ? "API key OK" : "API key belum ada"}
+                    </div>
                   </div>
-                  <div style={{ fontSize: "0.75rem", color:
-                    (p === "gemini" ? env.geminiKeyPresent : env.replicateKeyPresent)
-                      ? "#38a169" : "#e53e3e"
-                  }}>
-                    {(p === "gemini" ? env.geminiKeyPresent : env.replicateKeyPresent)
-                      ? "✅ API key OK"
-                      : "⚠️ API key tidak ditemukan"}
-                  </div>
-                </div>
-              </label>
-            ))}
+                </label>
+              );
+            })}
           </div>
         </div>
 
-        {/* Model */}
+        {/* Model Selection */}
         <div>
-          <label style={labelStyle}>
-            Model
-            <span style={{ marginLeft: "0.5rem" }}>
-              <label style={{ fontSize: "0.8rem", color: "#4a5568", fontWeight: "400", marginLeft: "0.5rem" }}>
-                <input
-                  type="checkbox"
-                  checked={useCustomModel}
-                  onChange={(e) => setUseCustomModel(e.target.checked)}
-                  style={{ marginRight: "0.25rem" }}
-                />
-                Custom model name
-              </label>
-            </span>
-          </label>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
+            <label style={{ ...labelStyle, margin: 0 }}>Nama Model</label>
+            <label style={{ fontSize: "0.78rem", color: "#45474c", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.25rem" }}>
+              <input
+                type="checkbox"
+                checked={useCustomModel}
+                onChange={(e) => setUseCustomModel(e.target.checked)}
+              />
+              Custom model name
+            </label>
+          </div>
+
           {useCustomModel ? (
             <input
               type="text"
               value={model}
               onChange={(e) => setModel(e.target.value)}
-              placeholder={
-                provider === "gemini"
-                  ? "Contoh: gemini-2.5-flash"
-                  : "Contoh: owner/model:version"
-              }
+              placeholder={provider === "gemini" ? "Contoh: gemini-2.5-flash" : "Contoh: owner/model:version"}
               style={inputStyle}
             />
           ) : (
@@ -209,14 +234,9 @@ export default function GeneratorSettingsClient({
               ))}
             </select>
           )}
-          <p style={{ fontSize: "0.75rem", color: "#a0aec0", marginTop: "0.25rem" }}>
-            {provider === "gemini"
-              ? "Daftar model Gemini: https://ai.google.dev/gemini-api/docs/models"
-              : "Cari model Replicate di: https://replicate.com/explore (format: owner/model:version)"}
-          </p>
         </div>
 
-        {/* Temperature */}
+        {/* Temperature Slider */}
         <div>
           <label style={labelStyle}>
             Temperature: <strong>{temperature.toFixed(2)}</strong>
@@ -226,17 +246,16 @@ export default function GeneratorSettingsClient({
             min="0" max="1" step="0.05"
             value={temperature}
             onChange={(e) => setTemperature(Number(e.target.value))}
-            style={{ width: "100%" }}
+            style={{ width: "100%", accentColor: "#0058be" }}
           />
-          <div style={{ display: "flex", justifyContent: "space-between",
-            fontSize: "0.7rem", color: "#a0aec0" }}>
-            <span>0.0 (Faktual)</span>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.72rem", color: "#75777d" }}>
+            <span>0.0 (Faktual / Presisi)</span>
             <span>0.5 (Seimbang)</span>
             <span>1.0 (Kreatif)</span>
           </div>
         </div>
 
-        {/* Max output tokens */}
+        {/* Max Output Tokens */}
         <div>
           <label style={labelStyle}>Max Output Tokens: {maxOutputTokens}</label>
           <input
@@ -248,13 +267,24 @@ export default function GeneratorSettingsClient({
         </div>
 
         {saveMsg && (
-          <div style={{
-            padding: "0.65rem 1rem", borderRadius: "6px",
-            background: saveMsg.startsWith("✅") ? "#f0fff4" : "#fff5f5",
-            color: saveMsg.startsWith("✅") ? "#22543d" : "#742a2a",
-            fontSize: "0.85rem", fontWeight: "500",
-          }}>
-            {saveMsg}
+          <div
+            style={{
+              padding: "0.65rem 1rem",
+              borderRadius: "8px",
+              background: saveMsg.type === "success" ? "#f0fff4" : "#ffdad6",
+              color: saveMsg.type === "success" ? "#276749" : "#ba1a1a",
+              fontSize: "0.85rem",
+              fontWeight: "600",
+              border: `1px solid ${saveMsg.type === "success" ? "#c6f6d5" : "#ffdad6"}`,
+              display: "flex",
+              alignItems: "center",
+              gap: "0.4rem",
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+              {saveMsg.type === "success" ? "check_circle" : "error"}
+            </span>
+            {saveMsg.text}
           </div>
         )}
 
@@ -262,38 +292,57 @@ export default function GeneratorSettingsClient({
           type="submit"
           disabled={saving || !keyAvailable}
           style={{
-            padding: "0.75rem 1rem", borderRadius: "6px",
-            background: saving || !keyAvailable ? "#a0aec0" : "#3182ce",
-            color: "white", border: "none", fontWeight: "600",
+            padding: "0.75rem 1rem",
+            borderRadius: "8px",
+            background: saving || !keyAvailable ? "#75777d" : "#091426",
+            color: "white",
+            border: "none",
+            fontWeight: "600",
+            fontSize: "0.875rem",
             cursor: saving || !keyAvailable ? "not-allowed" : "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.4rem",
           }}
         >
-          {saving ? "Menyimpan..." : !keyAvailable ? "API key belum ada" : "💾 Simpan Pengaturan"}
+          <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+            save
+          </span>
+          {saving ? "Menyimpan..." : !keyAvailable ? "API Key Belum Terpasang" : "Simpan Pengaturan Generator"}
         </button>
       </form>
 
-      {/* ==== TEST CONTAINER ==== */}
-      <div style={{
-        background: "white", borderRadius: "12px", padding: "1.5rem",
-        boxShadow: "0 1px 8px rgba(0,0,0,0.08)", display: "flex",
-        flexDirection: "column", gap: "1rem",
-      }}>
+      {/* ==== TEST CONTAINER (Google Stitch Design) ==== */}
+      <div
+        style={{
+          background: "#ffffff",
+          borderRadius: "12px",
+          padding: "1.5rem",
+          border: "1px solid #c5c6cd",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "1rem",
+        }}
+      >
         <div>
-          <h2 style={{ fontSize: "1.1rem", fontWeight: "600", color: "#2d3748", margin: 0 }}>
-            🧪 Test Generator
+          <h2 style={{ fontSize: "1.1rem", fontWeight: "600", color: "#091426", margin: 0, display: "flex", alignItems: "center", gap: "0.4rem" }}>
+            <span className="material-symbols-outlined" style={{ color: "#0058be" }}>science</span>
+            Test Generator RAG Pipeline
           </h2>
-          <p style={{ color: "#718096", fontSize: "0.85rem", marginTop: "0.25rem" }}>
-            Uji konfigurasi LLM saat ini sebelum menerapkannya ke bot.
+          <p style={{ color: "#45474c", fontSize: "0.85rem", marginTop: "0.25rem" }}>
+            Uji responsivitas dan akurasi model LLM pilihan Anda secara langsung.
           </p>
         </div>
 
         <div>
-          <label style={labelStyle}>Pertanyaan Uji</label>
+          <label style={labelStyle}>Pertanyaan Uji Simulasi</label>
           <textarea
             value={testQuestion}
             onChange={(e) => setTestQuestion(e.target.value)}
             rows={3}
-            style={{ ...inputStyle, resize: "vertical" }}
+            style={{ ...inputStyle, resize: "vertical", fontFamily: "inherit" }}
           />
         </div>
 
@@ -301,43 +350,67 @@ export default function GeneratorSettingsClient({
           onClick={handleTest}
           disabled={testing || !testQuestion.trim() || !keyAvailable}
           style={{
-            padding: "0.65rem 1rem", borderRadius: "6px",
-            background: testing ? "#a0aec0" : "#38a169",
-            color: "white", border: "none", fontWeight: "600",
-            cursor: testing || !testQuestion.trim() || !keyAvailable
-              ? "not-allowed" : "pointer",
+            padding: "0.75rem 1rem",
+            borderRadius: "8px",
+            background: testing ? "#75777d" : "#0058be",
+            color: "white",
+            border: "none",
+            fontWeight: "600",
+            fontSize: "0.875rem",
+            cursor: testing || !testQuestion.trim() || !keyAvailable ? "not-allowed" : "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.4rem",
           }}
         >
-          {testing ? "⏳ Menjalankan RAG pipeline..." : "🚀 Jalankan Test"}
+          <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+            rocket_launch
+          </span>
+          {testing ? "Menjalankan RAG Pipeline..." : "Jalankan Test Simulasi"}
         </button>
 
         {testResult && (
-          <div style={{
-            padding: "1rem", borderRadius: "8px", background: "#f7fafc",
-            border: "1px solid #e2e8f0", display: "flex",
-            flexDirection: "column", gap: "0.5rem",
-          }}>
-            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap",
-              fontSize: "0.75rem" }}>
-              <span style={badgeStyle(testResult.provider === "gemini" ? "#3182ce" : "#805ad5")}>
+          <div
+            style={{
+              padding: "1rem",
+              borderRadius: "8px",
+              background: "#f7f9fb",
+              border: "1px solid #c5c6cd",
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.65rem",
+            }}
+          >
+            <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", fontSize: "0.75rem" }}>
+              <span style={{ background: "#d8e2ff", color: "#0058be", padding: "0.2rem 0.55rem", borderRadius: "999px", fontWeight: "600" }}>
                 Provider: {testResult.provider}
               </span>
-              <span style={badgeStyle("#4a5568")}>Model: {testResult.model}</span>
-              <span style={badgeStyle(testResult.wasAnswered ? "#38a169" : "#e53e3e")}>
-                {testResult.wasAnswered ? "✅ Terjawab" : "❌ Tidak ada informasi"}
+              <span style={{ background: "#f2f4f6", color: "#45474c", padding: "0.2rem 0.55rem", borderRadius: "999px", fontWeight: "600" }}>
+                Model: {testResult.model}
               </span>
-              <span style={badgeStyle("#d69e2e")}>
-                ⏱️ {(testResult.elapsedMs / 1000).toFixed(2)}s
+              <span style={{ background: testResult.wasAnswered ? "#f0fff4" : "#ffdad6", color: testResult.wasAnswered ? "#276749" : "#ba1a1a", padding: "0.2rem 0.55rem", borderRadius: "999px", fontWeight: "600" }}>
+                {testResult.wasAnswered ? "Terjawab" : "Tidak ada informasi"}
               </span>
-              <span style={badgeStyle("#718096")}>
-                📚 {testResult.contextCount} konteks
+              <span style={{ background: "#feebc8", color: "#744210", padding: "0.2rem 0.55rem", borderRadius: "999px", fontWeight: "600" }}>
+                {(testResult.elapsedMs / 1000).toFixed(2)}s
               </span>
             </div>
-            <div style={{
-              background: "white", borderRadius: "6px", padding: "0.75rem",
-              fontSize: "0.875rem", color: "#2d3748", whiteSpace: "pre-wrap",
-              border: "1px solid #e2e8f0", maxHeight: "320px", overflowY: "auto",
-            }}>
+
+            <div
+              style={{
+                background: "#ffffff",
+                borderRadius: "6px",
+                padding: "0.75rem",
+                fontSize: "0.875rem",
+                color: "#191c1e",
+                whiteSpace: "pre-wrap",
+                border: "1px solid #c5c6cd",
+                maxHeight: "300px",
+                overflowY: "auto",
+                lineHeight: "1.5",
+              }}
+            >
               {testResult.answer}
             </div>
           </div>
@@ -348,19 +421,20 @@ export default function GeneratorSettingsClient({
 }
 
 const labelStyle: React.CSSProperties = {
-  display: "block", fontSize: "0.85rem", fontWeight: "600",
-  color: "#2d3748", marginBottom: "0.4rem",
+  display: "block",
+  fontSize: "0.85rem",
+  fontWeight: "600",
+  color: "#091426",
+  marginBottom: "0.4rem",
 };
 
 const inputStyle: React.CSSProperties = {
-  width: "100%", padding: "0.6rem 0.75rem", borderRadius: "6px",
-  border: "1px solid #cbd5e0", fontSize: "0.9rem", background: "white",
+  width: "100%",
+  padding: "0.6rem 0.75rem",
+  borderRadius: "6px",
+  border: "1px solid #c5c6cd",
+  fontSize: "0.9rem",
+  background: "#ffffff",
   boxSizing: "border-box",
+  fontFamily: "inherit",
 };
-
-function badgeStyle(bg: string): React.CSSProperties {
-  return {
-    background: bg, color: "white", padding: "0.2rem 0.55rem",
-    borderRadius: "9999px", fontWeight: "500",
-  };
-}

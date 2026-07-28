@@ -50,7 +50,6 @@ export default function HistoryClient({ initialConversations }: Props) {
       const data = await res.json();
       if (res.ok) {
         setUsers(data.users || []);
-        // Pilih user pertama secara otomatis jika belum ada yang terpilih
         if (data.users && data.users.length > 0 && !selectedChatId) {
           setSelectedChatId(data.users[0].telegram_chat_id);
         }
@@ -96,13 +95,13 @@ export default function HistoryClient({ initialConversations }: Props) {
         display: "grid",
         gridTemplateColumns: "320px 1fr",
         gap: "1.25rem",
-        height: "calc(100vh - 160px)",
-        minHeight: "550px",
+        height: "calc(100vh - 170px)",
+        minHeight: "560px",
         background: "#ffffff",
-        borderRadius: "16px",
+        borderRadius: "12px",
         padding: "1rem",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
-        border: "1px solid #e2e8f0",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03)",
+        border: "1px solid #c5c6cd",
       }}
     >
       {/* ============================================================ */}
@@ -112,12 +111,25 @@ export default function HistoryClient({ initialConversations }: Props) {
         style={{
           display: "flex",
           flexDirection: "column",
-          borderRight: "1px solid #edf2f7",
+          borderRight: "1px solid #e0e3e5",
           paddingRight: "1rem",
         }}
       >
-        {/* Search Input */}
-        <div style={{ marginBottom: "1rem" }}>
+        {/* Search Input dengan Material Icon */}
+        <div style={{ position: "relative", marginBottom: "1rem" }}>
+          <span
+            className="material-symbols-outlined"
+            style={{
+              position: "absolute",
+              left: "10px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              fontSize: "18px",
+              color: "#75777d",
+            }}
+          >
+            search
+          </span>
           <input
             type="text"
             value={search}
@@ -125,15 +137,16 @@ export default function HistoryClient({ initialConversations }: Props) {
               setSearch(e.target.value);
               fetchUserSessions(e.target.value);
             }}
-            placeholder="🔍 Cari nama / @username / ID..."
+            placeholder="Cari nama / username / ID..."
             style={{
               width: "100%",
-              padding: "0.65rem 0.85rem",
-              borderRadius: "10px",
-              border: "1px solid #cbd5e0",
+              padding: "0.6rem 0.75rem 0.6rem 2.2rem",
+              borderRadius: "8px",
+              border: "1px solid #c5c6cd",
               fontSize: "0.85rem",
-              background: "#f7fafc",
+              background: "#f2f4f6",
               boxSizing: "border-box",
+              fontFamily: "inherit",
             }}
           />
         </div>
@@ -145,23 +158,22 @@ export default function HistoryClient({ initialConversations }: Props) {
             overflowY: "auto",
             display: "flex",
             flexDirection: "column",
-            gap: "0.4rem",
+            gap: "0.35rem",
             paddingRight: "0.25rem",
           }}
         >
           {loadingUsers ? (
-            <div style={{ padding: "1.5rem", textAlign: "center", color: "#a0aec0", fontSize: "0.85rem" }}>
-              ⏳ Memuat daftar pengguna...
+            <div style={{ padding: "1.5rem", textAlign: "center", color: "#75777d", fontSize: "0.85rem" }}>
+              Memuat daftar pengguna...
             </div>
           ) : users.length === 0 ? (
-            <div style={{ padding: "1.5rem", textAlign: "center", color: "#a0aec0", fontSize: "0.85rem" }}>
+            <div style={{ padding: "1.5rem", textAlign: "center", color: "#75777d", fontSize: "0.85rem" }}>
               Tidak ada percakapan ditemukan.
             </div>
           ) : (
             users.map((u) => {
               const isSelected = u.telegram_chat_id === selectedChatId;
               const displayName = u.sender_name || (u.telegram_username ? `@${u.telegram_username}` : `Chat ${u.telegram_chat_id}`);
-              const avatarLetter = (u.sender_name || u.telegram_username || "U")[0].toUpperCase();
 
               return (
                 <div
@@ -172,32 +184,30 @@ export default function HistoryClient({ initialConversations }: Props) {
                     alignItems: "center",
                     gap: "0.75rem",
                     padding: "0.75rem",
-                    borderRadius: "12px",
+                    borderRadius: "8px",
                     cursor: "pointer",
-                    background: isSelected ? "#ebf8ff" : "transparent",
-                    border: isSelected ? "1.5px solid #63b3ed" : "1px solid transparent",
+                    background: isSelected ? "#d8e2ff" : "transparent",
+                    borderLeft: isSelected ? "4px solid #2170e4" : "4px solid transparent",
                     transition: "all 0.15s ease",
                   }}
                 >
-                  {/* Avatar Circle */}
+                  {/* Avatar Icon */}
                   <div
                     style={{
-                      width: "42px",
-                      height: "42px",
+                      width: "40px",
+                      height: "40px",
                       borderRadius: "50%",
-                      background: isSelected
-                        ? "linear-gradient(135deg, #3182ce 0%, #0088cc 100%)"
-                        : "linear-gradient(135deg, #a0aec0 0%, #718096 100%)",
+                      background: isSelected ? "#2170e4" : "#091426",
                       color: "white",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontWeight: "700",
-                      fontSize: "1.1rem",
                       flexShrink: 0,
                     }}
                   >
-                    {avatarLetter}
+                    <span className="material-symbols-outlined" style={{ fontSize: "22px" }}>
+                      person
+                    </span>
                   </div>
 
                   {/* Info User */}
@@ -207,7 +217,7 @@ export default function HistoryClient({ initialConversations }: Props) {
                         style={{
                           fontWeight: "600",
                           fontSize: "0.875rem",
-                          color: "#2d3748",
+                          color: isSelected ? "#001a42" : "#191c1e",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
@@ -215,7 +225,7 @@ export default function HistoryClient({ initialConversations }: Props) {
                       >
                         {displayName}
                       </div>
-                      <span style={{ fontSize: "0.7rem", color: "#a0aec0" }}>
+                      <span style={{ fontSize: "0.7rem", color: "#75777d" }}>
                         {new Date(u.last_active_at).toLocaleTimeString("id-ID", {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -234,7 +244,7 @@ export default function HistoryClient({ initialConversations }: Props) {
                       <div
                         style={{
                           fontSize: "0.775rem",
-                          color: "#718096",
+                          color: "#45474c",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
@@ -245,8 +255,8 @@ export default function HistoryClient({ initialConversations }: Props) {
                       </div>
                       <span
                         style={{
-                          background: isSelected ? "#3182ce" : "#e2e8f0",
-                          color: isSelected ? "white" : "#4a5568",
+                          background: isSelected ? "#2170e4" : "#e0e3e5",
+                          color: isSelected ? "white" : "#45474c",
                           fontSize: "0.7rem",
                           padding: "0.1rem 0.45rem",
                           borderRadius: "999px",
@@ -265,7 +275,7 @@ export default function HistoryClient({ initialConversations }: Props) {
       </div>
 
       {/* ============================================================ */}
-      {/* AREA UTAMA KANAN: Ruang Obrolan Telegram Style */}
+      {/* AREA UTAMA KANAN: Ruang Obrolan Google Stitch Style */}
       {/* ============================================================ */}
       <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
         {activeUser ? (
@@ -274,12 +284,12 @@ export default function HistoryClient({ initialConversations }: Props) {
             <div
               style={{
                 padding: "0.75rem 1rem",
-                borderBottom: "1px solid #edf2f7",
+                borderBottom: "1px solid #e0e3e5",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                background: "#f7fafc",
-                borderRadius: "10px",
+                background: "#f7f9fb",
+                borderRadius: "8px",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
@@ -288,70 +298,69 @@ export default function HistoryClient({ initialConversations }: Props) {
                     width: "38px",
                     height: "38px",
                     borderRadius: "50%",
-                    background: "linear-gradient(135deg, #0088cc 0%, #3182ce 100%)",
+                    background: "#091426",
                     color: "white",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontWeight: "700",
-                    fontSize: "1rem",
                   }}
                 >
-                  {(activeUser.sender_name || activeUser.telegram_username || "U")[0].toUpperCase()}
+                  <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>
+                    person
+                  </span>
                 </div>
                 <div>
-                  <div style={{ fontWeight: "700", color: "#2d3748", fontSize: "0.95rem" }}>
+                  <div style={{ fontWeight: "700", color: "#191c1e", fontSize: "0.95rem" }}>
                     {activeUser.sender_name || `Chat ${activeUser.telegram_chat_id}`}
                     {activeUser.telegram_username && (
-                      <span style={{ fontWeight: "400", color: "#718096", marginLeft: "0.5rem", fontSize: "0.8rem" }}>
+                      <span style={{ fontWeight: "400", color: "#75777d", marginLeft: "0.5rem", fontSize: "0.8rem" }}>
                         (@{activeUser.telegram_username})
                       </span>
                     )}
                   </div>
-                  <div style={{ fontSize: "0.75rem", color: "#a0aec0" }}>
+                  <div style={{ fontSize: "0.75rem", color: "#75777d" }}>
                     Telegram ID: <strong>{activeUser.telegram_chat_id}</strong> • Total {activeUser.total_messages} pesan
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Area Balon Chat (Scrollable Feed) */}
+            {/* Area Balon Chat Feed */}
             <div
               style={{
                 flex: 1,
                 overflowY: "auto",
                 padding: "1.25rem",
-                background: "#f4f6f8",
-                backgroundImage: "radial-gradient(#cbd5e0 1px, transparent 0)",
-                backgroundSize: "20px 20px",
+                background: "#f7f9fb",
                 display: "flex",
                 flexDirection: "column",
                 gap: "1.25rem",
                 marginTop: "0.5rem",
-                borderRadius: "10px",
+                borderRadius: "8px",
+                border: "1px solid #e0e3e5",
               }}
             >
               {loadingMessages ? (
-                <div style={{ padding: "2rem", textAlign: "center", color: "#718096", fontSize: "0.9rem" }}>
-                  ⏳ Memuat percakapan...
+                <div style={{ padding: "2rem", textAlign: "center", color: "#75777d", fontSize: "0.9rem" }}>
+                  Memuat percakapan...
                 </div>
               ) : messages.length === 0 ? (
-                <div style={{ padding: "2rem", textAlign: "center", color: "#718096", fontSize: "0.9rem" }}>
+                <div style={{ padding: "2rem", textAlign: "center", color: "#75777d", fontSize: "0.9rem" }}>
                   Belum ada riwayat pesan untuk pengguna ini.
                 </div>
               ) : (
                 messages.map((msg) => (
                   <div key={msg.id} style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-                    {/* USER MESSAGE BUBBLE (Rata Kanan - Biru) */}
+                    {/* USER BUBBLE (Rata Kanan - Biru Stitch #2170e4) */}
                     <div style={{ display: "flex", justifyContent: "flex-end" }}>
                       <div
                         style={{
                           maxWidth: "75%",
-                          background: "#2b5278",
-                          color: "white",
+                          background: "#2170e4",
+                          color: "#ffffff",
                           padding: "0.75rem 1rem",
-                          borderRadius: "16px 16px 4px 16px",
-                          boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+                          borderRadius: "12px 12px 2px 12px",
+                          boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
                           fontSize: "0.9rem",
                           lineHeight: "1.45",
                         }}
@@ -361,7 +370,7 @@ export default function HistoryClient({ initialConversations }: Props) {
                           style={{
                             textAlign: "right",
                             fontSize: "0.68rem",
-                            color: "#cbd5e0",
+                            color: "rgba(255,255,255,0.75)",
                             marginTop: "0.35rem",
                           }}
                         >
@@ -373,18 +382,18 @@ export default function HistoryClient({ initialConversations }: Props) {
                       </div>
                     </div>
 
-                    {/* BOT RESPONSE BUBBLE (Rata Kiri - Putih) */}
+                    {/* BOT BUBBLE (Rata Kiri - Putih dengan Icon Material Symbols) */}
                     {msg.bot_response && (
                       <div style={{ display: "flex", justifyContent: "flex-start" }}>
                         <div
                           style={{
                             maxWidth: "85%",
-                            background: "white",
-                            color: "#2d3748",
+                            background: "#ffffff",
+                            color: "#191c1e",
                             padding: "0.85rem 1.1rem",
-                            borderRadius: "16px 16px 16px 4px",
-                            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-                            border: "1px solid #e2e8f0",
+                            borderRadius: "12px 12px 12px 2px",
+                            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                            border: "1px solid #c5c6cd",
                             fontSize: "0.9rem",
                             lineHeight: "1.5",
                           }}
@@ -395,7 +404,7 @@ export default function HistoryClient({ initialConversations }: Props) {
                               display: "flex",
                               gap: "0.4rem",
                               alignItems: "center",
-                              marginBottom: "0.5rem",
+                              marginBottom: "0.6rem",
                               flexWrap: "wrap",
                             }}
                           >
@@ -403,28 +412,40 @@ export default function HistoryClient({ initialConversations }: Props) {
                               style={{
                                 fontSize: "0.7rem",
                                 fontWeight: "600",
-                                padding: "0.15rem 0.55rem",
+                                padding: "0.2rem 0.55rem",
                                 borderRadius: "999px",
                                 background: msg.was_answered ? "#f0fff4" : "#fff5f5",
-                                color: msg.was_answered ? "#22543d" : "#742a2a",
-                                border: msg.was_answered ? "1px solid #c6f6d5" : "1px solid #fed7d7",
+                                color: msg.was_answered ? "#276749" : "#ba1a1a",
+                                border: msg.was_answered ? "1px solid #c6f6d5" : "1px solid #ffdad6",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "0.25rem",
                               }}
                             >
-                              {msg.was_answered ? "✅ Terjawab" : "❌ Tidak ada informasi"}
+                              <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                                {msg.was_answered ? "check_circle" : "cancel"}
+                              </span>
+                              {msg.was_answered ? "Terjawab" : "Tidak ada informasi"}
                             </span>
 
                             {msg.response_time_ms && (
                               <span
                                 style={{
                                   fontSize: "0.7rem",
-                                  color: "#d69e2e",
-                                  background: "#fefcbf",
-                                  padding: "0.15rem 0.5rem",
+                                  color: "#744210",
+                                  background: "#feebc8",
+                                  padding: "0.2rem 0.55rem",
                                   borderRadius: "999px",
                                   fontWeight: "500",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "0.25rem",
                                 }}
                               >
-                                ⚡ {(msg.response_time_ms / 1000).toFixed(2)}s
+                                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                                  bolt
+                                </span>
+                                {(msg.response_time_ms / 1000).toFixed(2)}s
                               </span>
                             )}
 
@@ -432,13 +453,19 @@ export default function HistoryClient({ initialConversations }: Props) {
                               <span
                                 style={{
                                   fontSize: "0.7rem",
-                                  color: "#4a5568",
-                                  background: "#edf2f7",
-                                  padding: "0.15rem 0.5rem",
+                                  color: "#45474c",
+                                  background: "#e0e3e5",
+                                  padding: "0.2rem 0.55rem",
                                   borderRadius: "999px",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "0.25rem",
                                 }}
                               >
-                                🤖 {msg.model_used}
+                                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                                  smart_toy
+                                </span>
+                                {msg.model_used}
                               </span>
                             )}
                           </div>
@@ -448,21 +475,29 @@ export default function HistoryClient({ initialConversations }: Props) {
 
                           {/* Accordion Konteks PDR */}
                           {msg.retrieved_context && msg.retrieved_context.length > 0 && (
-                            <div style={{ marginTop: "0.75rem", borderTop: "1px solid #edf2f7", paddingTop: "0.5rem" }}>
+                            <div style={{ marginTop: "0.75rem", borderTop: "1px solid #e0e3e5", paddingTop: "0.5rem" }}>
                               <button
                                 onClick={() => setExpandedContext(expandedContext === msg.id ? null : msg.id)}
                                 style={{
-                                  background: "#f7fafc",
-                                  border: "1px solid #e2e8f0",
+                                  background: "#f2f4f6",
+                                  border: "1px solid #c5c6cd",
                                   padding: "0.35rem 0.65rem",
                                   borderRadius: "6px",
                                   fontSize: "0.75rem",
-                                  color: "#3182ce",
+                                  color: "#0058be",
                                   fontWeight: "600",
                                   cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "0.35rem",
                                 }}
                               >
-                                📚 {expandedContext === msg.id ? "Sembunyikan Konteks PDR" : `Lihat ${msg.retrieved_context.length - (msg.retrieved_context[0]?.provider ? 1 : 0)} Konteks Dokumen`}
+                                <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
+                                  menu_book
+                                </span>
+                                {expandedContext === msg.id
+                                  ? "Sembunyikan Konteks PDR"
+                                  : `Lihat ${msg.retrieved_context.length - (msg.retrieved_context[0]?.provider ? 1 : 0)} Konteks Dokumen`}
                               </button>
 
                               {expandedContext === msg.id && (
@@ -488,13 +523,13 @@ export default function HistoryClient({ initialConversations }: Props) {
                                             background: "#ffffff",
                                             padding: "0.75rem",
                                             borderRadius: "8px",
-                                            border: isSourceExpanded ? "1.5px solid #3182ce" : "1px solid #cbd5e0",
+                                            border: isSourceExpanded ? "1.5px solid #2170e4" : "1px solid #c5c6cd",
                                             fontSize: "0.8rem",
-                                            boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+                                            boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
                                             transition: "all 0.15s ease",
                                           }}
                                         >
-                                          {/* Header Sumber — Klik untuk Expand */}
+                                          {/* Header Sumber */}
                                           <div
                                             onClick={() => setExpandedSourceKey(isSourceExpanded ? null : cardKey)}
                                             style={{
@@ -504,12 +539,15 @@ export default function HistoryClient({ initialConversations }: Props) {
                                               cursor: "pointer",
                                             }}
                                           >
-                                            <div style={{ fontWeight: "600", color: "#2b6cb0" }}>
-                                              📄 Sumber #{idx + 1}: {ctx.source}{" "}
+                                            <div style={{ fontWeight: "600", color: "#0058be", display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                                              <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
+                                                description
+                                              </span>
+                                              Sumber #{idx + 1}: {ctx.source}{" "}
                                               {ctx.similarity && (
                                                 <span
                                                   style={{
-                                                    color: "#38a169",
+                                                    color: "#276749",
                                                     fontWeight: "600",
                                                     background: "#f0fff4",
                                                     padding: "0.1rem 0.4rem",
@@ -522,17 +560,19 @@ export default function HistoryClient({ initialConversations }: Props) {
                                                 </span>
                                               )}
                                             </div>
-                                            <span style={{ fontSize: "0.75rem", color: "#718096", fontWeight: "600" }}>
-                                              {isSourceExpanded ? "▲ Sembunyikan Detail" : "▼ Lihat Konteks Utuh & Chunk ID"}
+                                            <span style={{ fontSize: "0.75rem", color: "#75777d", fontWeight: "600", display: "flex", alignItems: "center", gap: "0.2rem" }}>
+                                              <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
+                                                {isSourceExpanded ? "expand_less" : "expand_more"}
+                                              </span>
+                                              {isSourceExpanded ? "Sembunyikan Detail" : "Lihat Detail"}
                                             </span>
                                           </div>
 
-                                          {/* Preview Ringkas (saat belum di-expand) */}
                                           {!isSourceExpanded && (
                                             <div
                                               onClick={() => setExpandedSourceKey(cardKey)}
                                               style={{
-                                                color: "#4a5568",
+                                                color: "#45474c",
                                                 fontStyle: "italic",
                                                 marginTop: "0.4rem",
                                                 cursor: "pointer",
@@ -551,18 +591,18 @@ export default function HistoryClient({ initialConversations }: Props) {
                                             <div
                                               style={{
                                                 marginTop: "0.75rem",
-                                                borderTop: "1.5px dashed #cbd5e0",
+                                                borderTop: "1px dashed #c5c6cd",
                                                 paddingTop: "0.75rem",
                                                 display: "flex",
                                                 flexDirection: "column",
                                                 gap: "0.75rem",
                                               }}
                                             >
-                                              {/* 📊 METADATA AKADEMIK (BUKTI SKRIPSI / PDR PROOF) */}
+                                              {/* Metadata Badges (Flex Column) */}
                                               <div
                                                 style={{
-                                                  background: "#f8fafc",
-                                                  border: "1px solid #e2e8f0",
+                                                  background: "#f7f9fb",
+                                                  border: "1px solid #e0e3e5",
                                                   borderRadius: "8px",
                                                   padding: "0.75rem",
                                                   display: "flex",
@@ -574,38 +614,45 @@ export default function HistoryClient({ initialConversations }: Props) {
                                                 {/* Baris Badges Metrik */}
                                                 <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
                                                   <span style={{ background: "#f0fff4", color: "#276749", border: "1px solid #c6f6d5", padding: "0.25rem 0.55rem", borderRadius: "6px", fontWeight: "600" }}>
-                                                    🎯 Cosine Similarity: {ctx.similarity ? `${(ctx.similarity * 100).toFixed(2)}% (${ctx.similarity.toFixed(4)})` : "95.00% (0.9500)"}
+                                                    Cosine Similarity: {ctx.similarity ? `${(ctx.similarity * 100).toFixed(2)}% (${ctx.similarity.toFixed(4)})` : "95.00% (0.9500)"}
                                                   </span>
-                                                  <span style={{ background: "#edf2f7", color: "#4a5568", border: "1px solid #cbd5e0", padding: "0.25rem 0.55rem", borderRadius: "6px", fontWeight: "600" }}>
-                                                    📏 Cosine Distance: {ctx.similarity ? (2 * (1 - ctx.similarity)).toFixed(4) : "0.1000"}
+                                                  <span style={{ background: "#f2f4f6", color: "#45474c", border: "1px solid #c5c6cd", padding: "0.25rem 0.55rem", borderRadius: "6px", fontWeight: "600" }}>
+                                                    Cosine Distance: {ctx.similarity ? (2 * (1 - ctx.similarity)).toFixed(4) : "0.1000"}
                                                   </span>
-                                                  <span style={{ background: "#ebf8ff", color: "#2b6cb0", border: "1px solid #bee3f8", padding: "0.25rem 0.55rem", borderRadius: "6px", fontWeight: "600" }}>
-                                                    📊 Parent: {fullText.length} Karakter | Child: {(ctx.childContent || ctx.snippet || "").length} Karakter
+                                                  <span style={{ background: "#d8e2ff", color: "#0058be", border: "1px solid #adc6ff", padding: "0.25rem 0.55rem", borderRadius: "6px", fontWeight: "600" }}>
+                                                    Parent: {fullText.length} Karakter | Child: {(ctx.childContent || ctx.snippet || "").length} Karakter
                                                   </span>
                                                 </div>
 
                                                 {/* Baris Parent Chunk ID */}
-                                                <div style={{ background: "#ffffff", padding: "0.45rem 0.65rem", borderRadius: "6px", border: "1px solid #e2e8f0" }}>
-                                                  <span style={{ color: "#718096", fontSize: "0.72rem", fontWeight: "600", display: "block" }}>🔑 Parent Chunk ID:</span>
-                                                  <span style={{ color: "#2b6cb0", fontFamily: "monospace", fontSize: "0.78rem", fontWeight: "600", wordBreak: "break-all", display: "block", marginTop: "0.1rem" }}>
+                                                <div style={{ background: "#ffffff", padding: "0.45rem 0.65rem", borderRadius: "6px", border: "1px solid #e0e3e5" }}>
+                                                  <span style={{ color: "#75777d", fontSize: "0.72rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                                                    <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>key</span>
+                                                    Parent Chunk ID:
+                                                  </span>
+                                                  <span style={{ color: "#0058be", fontFamily: "monospace", fontSize: "0.78rem", fontWeight: "600", wordBreak: "break-all", display: "block", marginTop: "0.1rem" }}>
                                                     {ctx.parentId || `${ctx.source.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, "_")}-parent-${idx}`}
                                                   </span>
                                                 </div>
 
                                                 {/* Baris Child Chunk ID */}
-                                                <div style={{ background: "#ffffff", padding: "0.45rem 0.65rem", borderRadius: "6px", border: "1px solid #e2e8f0" }}>
-                                                  <span style={{ color: "#718096", fontSize: "0.72rem", fontWeight: "600", display: "block" }}>📌 Child Chunk ID:</span>
-                                                  <span style={{ color: "#dd6b20", fontFamily: "monospace", fontSize: "0.78rem", fontWeight: "600", wordBreak: "break-all", display: "block", marginTop: "0.1rem" }}>
+                                                <div style={{ background: "#ffffff", padding: "0.45rem 0.65rem", borderRadius: "6px", border: "1px solid #e0e3e5" }}>
+                                                  <span style={{ color: "#75777d", fontSize: "0.72rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                                                    <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>push_pin</span>
+                                                    Child Chunk ID:
+                                                  </span>
+                                                  <span style={{ color: "#744210", fontFamily: "monospace", fontSize: "0.78rem", fontWeight: "600", wordBreak: "break-all", display: "block", marginTop: "0.1rem" }}>
                                                     {ctx.childId || `${ctx.source.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, "_")}-parent-${idx}-child-0`}
                                                   </span>
                                                 </div>
                                               </div>
 
-                                              {/* Full Parent Content (Konteks yang di-feed ke LLM) */}
+                                              {/* Full Parent Content */}
                                               <div>
                                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.35rem" }}>
-                                                  <span style={{ fontWeight: "700", color: "#1a202c", fontSize: "0.8rem" }}>
-                                                    📜 Konteks Parent Document Utuh (Teks Asli yang Dikirim ke LLM):
+                                                  <span style={{ fontWeight: "700", color: "#191c1e", fontSize: "0.8rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                                                    <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>description</span>
+                                                    Konteks Parent Document Utuh (Dikirim ke LLM):
                                                   </span>
                                                   <button
                                                     onClick={(e) => {
@@ -614,30 +661,36 @@ export default function HistoryClient({ initialConversations }: Props) {
                                                       alert("Teks konteks berhasil disalin!");
                                                     }}
                                                     style={{
-                                                      background: "#ebf8ff",
-                                                      border: "1px solid #bee3f8",
-                                                      color: "#2b6cb0",
-                                                      borderRadius: "4px",
-                                                      padding: "0.2rem 0.5rem",
+                                                      background: "#d8e2ff",
+                                                      border: "1px solid #adc6ff",
+                                                      color: "#0058be",
+                                                      borderRadius: "6px",
+                                                      padding: "0.25rem 0.55rem",
                                                       fontSize: "0.72rem",
                                                       fontWeight: "600",
                                                       cursor: "pointer",
+                                                      display: "inline-flex",
+                                                      alignItems: "center",
+                                                      gap: "0.25rem",
                                                     }}
                                                   >
-                                                    📋 Salin Teks
+                                                    <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                                                      content_copy
+                                                    </span>
+                                                    Salin Teks
                                                   </button>
                                                 </div>
                                                 <div
                                                   style={{
                                                     background: "#ffffff",
-                                                    border: "1px solid #cbd5e0",
+                                                    border: "1px solid #c5c6cd",
                                                     padding: "0.75rem",
                                                     borderRadius: "6px",
-                                                    color: "#1a202c",
+                                                    color: "#191c1e",
                                                     whiteSpace: "pre-wrap",
                                                     maxHeight: "250px",
                                                     overflowY: "auto",
-                                                    fontFamily: "system-ui, sans-serif",
+                                                    fontFamily: "inherit",
                                                     lineHeight: "1.5",
                                                     fontSize: "0.825rem",
                                                   }}
@@ -646,10 +699,11 @@ export default function HistoryClient({ initialConversations }: Props) {
                                                 </div>
                                               </div>
 
-                                              {/* Child Content Matcher (Potongan pencari Vektor) */}
+                                              {/* Child Content Matcher */}
                                               <div>
-                                                <span style={{ fontWeight: "700", color: "#276749", fontSize: "0.78rem", display: "block", marginBottom: "0.35rem" }}>
-                                                  🔍 Child Chunk Matcher (Potongan Pencocokan Vektor di ChromaDB):
+                                                <span style={{ fontWeight: "700", color: "#276749", fontSize: "0.78rem", display: "flex", alignItems: "center", gap: "0.3rem", marginBottom: "0.35rem" }}>
+                                                  <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>find_in_page</span>
+                                                  Child Chunk Matcher (Pemicu Similarity Search):
                                                 </span>
                                                 <div
                                                   style={{
@@ -680,7 +734,7 @@ export default function HistoryClient({ initialConversations }: Props) {
                             style={{
                               textAlign: "right",
                               fontSize: "0.68rem",
-                              color: "#a0aec0",
+                              color: "#75777d",
                               marginTop: "0.35rem",
                             }}
                           >
@@ -704,13 +758,14 @@ export default function HistoryClient({ initialConversations }: Props) {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "#a0aec0",
+              color: "#75777d",
               fontSize: "0.9rem",
-              background: "#f7fafc",
-              borderRadius: "10px",
+              background: "#f7f9fb",
+              borderRadius: "8px",
+              border: "1px solid #e0e3e5",
             }}
           >
-            👈 Pilih pengguna di sebelah kiri untuk melihat riwayat pesan.
+            Pilih pengguna di sebelah kiri untuk melihat riwayat pesan.
           </div>
         )}
       </div>

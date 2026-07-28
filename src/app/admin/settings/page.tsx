@@ -18,12 +18,25 @@ export default async function SettingsPage() {
 
   return (
     <AuthedLayout>
-      <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "1.75rem" }}>
         <div>
-          <h1 style={{ fontSize: "1.5rem", fontWeight: "700", color: "#1a202c", marginBottom: "0.5rem" }}>
-            ⚙️ Pengaturan AI Chatbot (LLM & Embedding)
+          <h1
+            style={{
+              fontSize: "1.75rem",
+              fontWeight: "700",
+              color: "#091426",
+              margin: 0,
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: "28px", color: "#0058be" }}>
+              settings
+            </span>
+            Pengaturan AI Chatbot (LLM & Embedding)
           </h1>
-          <p style={{ color: "#718096", fontSize: "0.9rem" }}>
+          <p style={{ color: "#45474c", fontSize: "0.875rem", marginTop: "0.25rem" }}>
             Kelola provider LLM (Generator Jawaban) dan Embedding Model (Vector Retrieval) untuk chatbot.
           </p>
         </div>

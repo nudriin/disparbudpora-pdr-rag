@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { EmbeddingConfig, EmbeddingProvider } from "@/retrieval/embedding";
 import { EMBEDDING_PRESET_OPTIONS } from "@/retrieval/embedding";
 
@@ -23,9 +23,8 @@ export default function EmbeddingSettingsClient({
   );
 
   const [saving, setSaving] = useState(false);
-  const [saveMsg, setSaveMsg] = useState<string | null>(null);
+  const [saveMsg, setSaveMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  // Ketika preset dipilih dari dropdown
   function handlePresetSelect(presetIndex: number) {
     const selected = EMBEDDING_PRESET_OPTIONS[presetIndex]?.value;
     if (selected) {
@@ -54,9 +53,9 @@ export default function EmbeddingSettingsClient({
       const body = await res.json();
       if (!res.ok) throw new Error(body.error || "Gagal menyimpan");
 
-      setSaveMsg("✅ Pengaturan Embedding berhasil disimpan!");
+      setSaveMsg({ type: "success", text: "Pengaturan Embedding berhasil disimpan!" });
     } catch (err) {
-      setSaveMsg("❌ Gagal: " + (err as Error).message);
+      setSaveMsg({ type: "error", text: (err as Error).message });
     } finally {
       setSaving(false);
       setTimeout(() => setSaveMsg(null), 5000);
@@ -69,20 +68,22 @@ export default function EmbeddingSettingsClient({
     <form
       onSubmit={handleSave}
       style={{
-        background: "white",
+        background: "#ffffff",
         borderRadius: "12px",
         padding: "1.5rem",
-        boxShadow: "0 1px 8px rgba(0,0,0,0.08)",
+        border: "1px solid #c5c6cd",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
         display: "flex",
         flexDirection: "column",
         gap: "1.25rem",
       }}
     >
       <div>
-        <h2 style={{ fontSize: "1.1rem", fontWeight: "600", color: "#2d3748", margin: 0 }}>
-          🧬 Pengaturan Embedding Model (Vector Retrieval)
+        <h2 style={{ fontSize: "1.1rem", fontWeight: "600", color: "#091426", margin: 0, display: "flex", alignItems: "center", gap: "0.4rem" }}>
+          <span className="material-symbols-outlined" style={{ color: "#0058be" }}>memory</span>
+          Pengaturan Embedding Model (Vector Retrieval)
         </h2>
-        <p style={{ color: "#718096", fontSize: "0.85rem", marginTop: "0.25rem" }}>
+        <p style={{ color: "#45474c", fontSize: "0.85rem", marginTop: "0.25rem" }}>
           Pilih model embedding untuk mengubah dokumen pariwisata menjadi representasi vektor numerik.
         </p>
       </div>
@@ -90,16 +91,24 @@ export default function EmbeddingSettingsClient({
       {/* Warning Box */}
       <div
         style={{
-          background: "#fffaf0",
-          border: "1px solid #feebc8",
+          background: "#feebc8",
+          border: "1px solid #fbd38d",
           borderRadius: "8px",
           padding: "0.85rem 1rem",
           fontSize: "0.825rem",
           color: "#744210",
-          lineHeight: "1.4",
+          lineHeight: "1.45",
+          display: "flex",
+          alignItems: "flex-start",
+          gap: "0.5rem",
         }}
       >
-        ⚠️ <strong>Perhatian Peting:</strong> Jika Anda mengubah provider/dimensi embedding pada data yang sudah di-ingest, Anda harus melakukan <strong>Reset Vector & Re-ingest</strong> di menu Dokumen agar dimensi ChromaDB sesuai.
+        <span className="material-symbols-outlined" style={{ fontSize: "20px", color: "#dd6b20", flexShrink: 0 }}>
+          warning
+        </span>
+        <div>
+          <strong>Perhatian Penting:</strong> Jika Anda mengubah provider/dimensi embedding pada data yang sudah di-ingest, Anda harus melakukan <strong>Reset Vector & Re-ingest</strong> di menu Dokumen agar dimensi ChromaDB sesuai.
+        </div>
       </div>
 
       {/* Quick Presets Dropdown */}
@@ -125,65 +134,75 @@ export default function EmbeddingSettingsClient({
           ))}
         </select>
         <div style={{ marginTop: "0.5rem" }}>
-          <label style={{ fontSize: "0.8rem", color: "#4a5568", cursor: "pointer" }}>
+          <label style={{ fontSize: "0.8rem", color: "#45474c", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.25rem" }}>
             <input
               type="checkbox"
               checked={useCustomModel}
               onChange={(e) => setUseCustomModel(e.target.checked)}
-              style={{ marginRight: "0.35rem" }}
             />
             Gunakan konfigurasi model / dimensi kustom (Custom Model)
           </label>
         </div>
       </div>
 
-      {/* Provider Choice */}
+      {/* Provider Choice Cards */}
       <div>
         <label style={labelStyle}>Provider Embedding</label>
         <div style={{ display: "flex", gap: "0.75rem" }}>
-          {(["transformers", "google"] as EmbeddingProvider[]).map((p) => (
-            <label
-              key={p}
-              style={{
-                flex: 1,
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                padding: "0.75rem",
-                borderRadius: "8px",
-                border: provider === p ? "2px solid #3182ce" : "1px solid #e2e8f0",
-                background: provider === p ? "#ebf8ff" : "white",
-                cursor: "pointer",
-                fontSize: "0.9rem",
-              }}
-            >
-              <input
-                type="radio"
-                name="embedding_provider"
-                checked={provider === p}
-                onChange={() => setProvider(p)}
-              />
-              <div>
-                <div style={{ fontWeight: "600" }}>
-                  {p === "transformers"
-                    ? "🟢 Transformers.js (Lokal Gratis)"
-                    : "🔵 Google AI Studio"}
+          {(["transformers", "google"] as EmbeddingProvider[]).map((p) => {
+            const isSelected = provider === p;
+            const isOk = p === "transformers" || env.hasGoogleApiKey;
+
+            return (
+              <label
+                key={p}
+                style={{
+                  flex: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.65rem",
+                  padding: "0.85rem",
+                  borderRadius: "8px",
+                  border: isSelected ? "2px solid #0058be" : "1px solid #c5c6cd",
+                  background: isSelected ? "#d8e2ff" : "#ffffff",
+                  cursor: "pointer",
+                  fontSize: "0.9rem",
+                }}
+              >
+                <input
+                  type="radio"
+                  name="embedding_provider"
+                  checked={isSelected}
+                  onChange={() => setProvider(p)}
+                />
+                <div>
+                  <div style={{ fontWeight: "700", color: "#091426", fontSize: "0.875rem" }}>
+                    {p === "transformers" ? "Transformers.js (Lokal)" : "Google AI Studio"}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.72rem",
+                      fontWeight: "600",
+                      color: isOk ? "#276749" : "#ba1a1a",
+                      marginTop: "0.15rem",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.2rem",
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>
+                      {isOk ? "check_circle" : "warning"}
+                    </span>
+                    {p === "transformers"
+                      ? "CPU lokal (Tanpa API Key)"
+                      : env.hasGoogleApiKey
+                      ? "GOOGLE_API_KEY OK"
+                      : "API Key belum di-set"}
+                  </div>
                 </div>
-                <div
-                  style={{
-                    fontSize: "0.75rem",
-                    color: p === "transformers" ? "#38a169" : env.hasGoogleApiKey ? "#38a169" : "#e53e3e",
-                  }}
-                >
-                  {p === "transformers"
-                    ? "✅ Run di CPU lokal (Tanpa API Key)"
-                    : env.hasGoogleApiKey
-                    ? "✅ GOOGLE_API_KEY OK"
-                    : "⚠️ GOOGLE_API_KEY belum di-set"}
-                </div>
-              </div>
-            </label>
-          ))}
+              </label>
+            );
+          })}
         </div>
       </div>
 
@@ -195,15 +214,11 @@ export default function EmbeddingSettingsClient({
           value={model}
           disabled={!useCustomModel}
           onChange={(e) => setModel(e.target.value)}
-          placeholder={
-            provider === "transformers"
-              ? "Contoh: Xenova/multilingual-e5-small"
-              : "Contoh: gemini-embedding-001"
-          }
+          placeholder={provider === "transformers" ? "Contoh: Xenova/multilingual-e5-small" : "Contoh: gemini-embedding-001"}
           style={{
             ...inputStyle,
             opacity: !useCustomModel ? 0.6 : 1,
-            background: !useCustomModel ? "#f7fafc" : "white",
+            background: !useCustomModel ? "#f7f9fb" : "white",
           }}
         />
       </div>
@@ -219,11 +234,11 @@ export default function EmbeddingSettingsClient({
           style={{
             ...inputStyle,
             opacity: !useCustomModel ? 0.6 : 1,
-            background: !useCustomModel ? "#f7fafc" : "white",
+            background: !useCustomModel ? "#f7f9fb" : "white",
           }}
         />
-        <p style={{ fontSize: "0.75rem", color: "#a0aec0", marginTop: "0.25rem" }}>
-          Jumlah elemen numerik vektor. (e.g. 384 untuk multilingual-e5-small, 3072 untuk gemini-embedding-001, 768 untuk text-embedding-004).
+        <p style={{ fontSize: "0.75rem", color: "#75777d", marginTop: "0.25rem" }}>
+          Jumlah elemen numerik vektor. (e.g. 384 untuk multilingual-e5-small, 3072 untuk gemini-embedding-001).
         </p>
       </div>
 
@@ -231,14 +246,21 @@ export default function EmbeddingSettingsClient({
         <div
           style={{
             padding: "0.65rem 1rem",
-            borderRadius: "6px",
-            background: saveMsg.startsWith("✅") ? "#f0fff4" : "#fff5f5",
-            color: saveMsg.startsWith("✅") ? "#22543d" : "#742a2a",
+            borderRadius: "8px",
+            background: saveMsg.type === "success" ? "#f0fff4" : "#ffdad6",
+            color: saveMsg.type === "success" ? "#276749" : "#ba1a1a",
             fontSize: "0.85rem",
-            fontWeight: "500",
+            fontWeight: "600",
+            border: `1px solid ${saveMsg.type === "success" ? "#c6f6d5" : "#ffdad6"}`,
+            display: "flex",
+            alignItems: "center",
+            gap: "0.4rem",
           }}
         >
-          {saveMsg}
+          <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+            {saveMsg.type === "success" ? "check_circle" : "error"}
+          </span>
+          {saveMsg.text}
         </div>
       )}
 
@@ -247,19 +269,27 @@ export default function EmbeddingSettingsClient({
         disabled={saving || !isGoogleAvailable}
         style={{
           padding: "0.75rem 1rem",
-          borderRadius: "6px",
-          background: saving || !isGoogleAvailable ? "#a0aec0" : "#3182ce",
+          borderRadius: "8px",
+          background: saving || !isGoogleAvailable ? "#75777d" : "#091426",
           color: "white",
           border: "none",
           fontWeight: "600",
+          fontSize: "0.875rem",
           cursor: saving || !isGoogleAvailable ? "not-allowed" : "pointer",
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "0.4rem",
         }}
       >
+        <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+          save
+        </span>
         {saving
           ? "Menyimpan..."
           : !isGoogleAvailable
           ? "GOOGLE_API_KEY Belum Terpasang"
-          : "💾 Simpan Pengaturan Embedding"}
+          : "Simpan Pengaturan Embedding"}
       </button>
     </form>
   );
@@ -269,7 +299,7 @@ const labelStyle: React.CSSProperties = {
   display: "block",
   fontSize: "0.85rem",
   fontWeight: "600",
-  color: "#2d3748",
+  color: "#091426",
   marginBottom: "0.4rem",
 };
 
@@ -277,8 +307,9 @@ const inputStyle: React.CSSProperties = {
   width: "100%",
   padding: "0.6rem 0.75rem",
   borderRadius: "6px",
-  border: "1px solid #cbd5e0",
+  border: "1px solid #c5c6cd",
   fontSize: "0.9rem",
-  background: "white",
+  background: "#ffffff",
   boxSizing: "border-box",
+  fontFamily: "inherit",
 };

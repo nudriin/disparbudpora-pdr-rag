@@ -21,10 +21,23 @@ export default async function HistoryPage() {
     <AuthedLayout>
       <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
         <div>
-          <h1 style={{ fontSize: "1.5rem", fontWeight: "700", color: "#1a202c", margin: 0 }}>
-            💬 History Percakapan Telegram (Chat View)
+          <h1
+            style={{
+              fontSize: "1.75rem",
+              fontWeight: "700",
+              color: "#091426",
+              margin: 0,
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: "28px", color: "#0058be" }}>
+              forum
+            </span>
+            History Chat Telegram
           </h1>
-          <p style={{ color: "#718096", fontSize: "0.875rem", marginTop: "0.25rem" }}>
+          <p style={{ color: "#45474c", fontSize: "0.875rem", marginTop: "0.25rem" }}>
             Riwayat obrolan pengguna dengan chatbot Telegram. Dikelompokkan per pengguna (Total <strong>{total}</strong> pesan).
           </p>
         </div>
