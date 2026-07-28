@@ -64,26 +64,46 @@ export default function EmbeddingSettingsClient({
 
   const isGoogleAvailable = provider !== "google" || env.hasGoogleApiKey;
 
+  const labelStyle: React.CSSProperties = {
+    display: "block",
+    fontSize: "0.85rem",
+    fontWeight: "700",
+    color: "var(--text-primary)",
+    marginBottom: "0.4rem",
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: "100%",
+    padding: "0.65rem 0.85rem",
+    borderRadius: "12px",
+    border: "1px solid var(--border-color)",
+    fontSize: "0.9rem",
+    background: "var(--input-bg)",
+    color: "var(--text-primary)",
+    boxSizing: "border-box",
+    fontFamily: "inherit",
+  };
+
   return (
     <form
       onSubmit={handleSave}
       style={{
-        background: "#ffffff",
-        borderRadius: "12px",
+        background: "var(--bg-surface)",
+        borderRadius: "22px",
         padding: "1.5rem",
-        border: "1px solid #c5c6cd",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+        border: "1px solid var(--border-color)",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
         display: "flex",
         flexDirection: "column",
         gap: "1.25rem",
       }}
     >
       <div>
-        <h2 style={{ fontSize: "1.1rem", fontWeight: "600", color: "#091426", margin: 0, display: "flex", alignItems: "center", gap: "0.4rem" }}>
-          <span className="material-symbols-outlined" style={{ color: "#0058be" }}>memory</span>
+        <h2 style={{ fontSize: "1.15rem", fontWeight: "800", color: "var(--text-primary)", margin: 0, display: "flex", alignItems: "center", gap: "0.4rem" }}>
+          <span className="material-symbols-outlined" style={{ color: "var(--text-primary)" }}>memory</span>
           Pengaturan Embedding Model (Vector Retrieval)
         </h2>
-        <p style={{ color: "#45474c", fontSize: "0.85rem", marginTop: "0.25rem" }}>
+        <p style={{ color: "var(--text-secondary)", fontSize: "0.85rem", marginTop: "0.25rem" }}>
           Pilih model embedding untuk mengubah dokumen pariwisata menjadi representasi vektor numerik.
         </p>
       </div>
@@ -91,19 +111,19 @@ export default function EmbeddingSettingsClient({
       {/* Warning Box */}
       <div
         style={{
-          background: "#feebc8",
+          background: "rgba(254, 235, 200, 0.15)",
           border: "1px solid #fbd38d",
-          borderRadius: "8px",
+          borderRadius: "14px",
           padding: "0.85rem 1rem",
           fontSize: "0.825rem",
-          color: "#744210",
+          color: "var(--text-primary)",
           lineHeight: "1.45",
           display: "flex",
           alignItems: "flex-start",
           gap: "0.5rem",
         }}
       >
-        <span className="material-symbols-outlined" style={{ fontSize: "20px", color: "#dd6b20", flexShrink: 0 }}>
+        <span className="material-symbols-outlined" style={{ fontSize: "20px", color: "#FFB4A2", flexShrink: 0 }}>
           warning
         </span>
         <div>
@@ -134,7 +154,7 @@ export default function EmbeddingSettingsClient({
           ))}
         </select>
         <div style={{ marginTop: "0.5rem" }}>
-          <label style={{ fontSize: "0.8rem", color: "#45474c", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.25rem" }}>
+          <label style={{ fontSize: "0.8rem", color: "var(--text-secondary)", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.25rem" }}>
             <input
               type="checkbox"
               checked={useCustomModel}
@@ -148,7 +168,7 @@ export default function EmbeddingSettingsClient({
       {/* Provider Choice Cards */}
       <div>
         <label style={labelStyle}>Provider Embedding</label>
-        <div style={{ display: "flex", gap: "0.75rem" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
           {(["transformers", "google"] as EmbeddingProvider[]).map((p) => {
             const isSelected = provider === p;
             const isOk = p === "transformers" || env.hasGoogleApiKey;
@@ -162,9 +182,10 @@ export default function EmbeddingSettingsClient({
                   alignItems: "center",
                   gap: "0.65rem",
                   padding: "0.85rem",
-                  borderRadius: "8px",
-                  border: isSelected ? "2px solid #0058be" : "1px solid #c5c6cd",
-                  background: isSelected ? "#d8e2ff" : "#ffffff",
+                  borderRadius: "14px",
+                  border: isSelected ? "2px solid var(--mint-text)" : "1px solid var(--border-color)",
+                  background: isSelected ? "var(--mint-accent)" : "var(--input-bg)",
+                  color: isSelected ? "var(--mint-text)" : "var(--text-primary)",
                   cursor: "pointer",
                   fontSize: "0.9rem",
                 }}
@@ -176,14 +197,14 @@ export default function EmbeddingSettingsClient({
                   onChange={() => setProvider(p)}
                 />
                 <div>
-                  <div style={{ fontWeight: "700", color: "#091426", fontSize: "0.875rem" }}>
+                  <div style={{ fontWeight: "800", fontSize: "0.875rem" }}>
                     {p === "transformers" ? "Transformers.js (Lokal)" : "Google AI Studio"}
                   </div>
                   <div
                     style={{
                       fontSize: "0.72rem",
-                      fontWeight: "600",
-                      color: isOk ? "#276749" : "#ba1a1a",
+                      fontWeight: "700",
+                      color: isOk ? (isSelected ? "var(--mint-text)" : "#276749") : "#ba1a1a",
                       marginTop: "0.15rem",
                       display: "flex",
                       alignItems: "center",
@@ -218,7 +239,6 @@ export default function EmbeddingSettingsClient({
           style={{
             ...inputStyle,
             opacity: !useCustomModel ? 0.6 : 1,
-            background: !useCustomModel ? "#f7f9fb" : "white",
           }}
         />
       </div>
@@ -234,10 +254,9 @@ export default function EmbeddingSettingsClient({
           style={{
             ...inputStyle,
             opacity: !useCustomModel ? 0.6 : 1,
-            background: !useCustomModel ? "#f7f9fb" : "white",
           }}
         />
-        <p style={{ fontSize: "0.75rem", color: "#75777d", marginTop: "0.25rem" }}>
+        <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.25rem" }}>
           Jumlah elemen numerik vektor. (e.g. 384 untuk multilingual-e5-small, 3072 untuk gemini-embedding-001).
         </p>
       </div>
@@ -246,12 +265,12 @@ export default function EmbeddingSettingsClient({
         <div
           style={{
             padding: "0.65rem 1rem",
-            borderRadius: "8px",
-            background: saveMsg.type === "success" ? "#f0fff4" : "#ffdad6",
-            color: saveMsg.type === "success" ? "#276749" : "#ba1a1a",
+            borderRadius: "12px",
+            background: saveMsg.type === "success" ? "rgba(39,103,73,0.15)" : "rgba(186,26,26,0.15)",
+            color: saveMsg.type === "success" ? "#A1EBB4" : "#FFB4A2",
             fontSize: "0.85rem",
-            fontWeight: "600",
-            border: `1px solid ${saveMsg.type === "success" ? "#c6f6d5" : "#ffdad6"}`,
+            fontWeight: "700",
+            border: `1px solid ${saveMsg.type === "success" ? "#2E6B45" : "#FFB4A2"}`,
             display: "flex",
             alignItems: "center",
             gap: "0.4rem",
@@ -269,11 +288,11 @@ export default function EmbeddingSettingsClient({
         disabled={saving || !isGoogleAvailable}
         style={{
           padding: "0.75rem 1rem",
-          borderRadius: "8px",
-          background: saving || !isGoogleAvailable ? "#75777d" : "#091426",
+          borderRadius: "999px",
+          background: saving || !isGoogleAvailable ? "var(--text-secondary)" : "var(--dark-card-bg)",
           color: "white",
           border: "none",
-          fontWeight: "600",
+          fontWeight: "700",
           fontSize: "0.875rem",
           cursor: saving || !isGoogleAvailable ? "not-allowed" : "pointer",
           display: "inline-flex",
@@ -294,22 +313,3 @@ export default function EmbeddingSettingsClient({
     </form>
   );
 }
-
-const labelStyle: React.CSSProperties = {
-  display: "block",
-  fontSize: "0.85rem",
-  fontWeight: "600",
-  color: "#091426",
-  marginBottom: "0.4rem",
-};
-
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "0.6rem 0.75rem",
-  borderRadius: "6px",
-  border: "1px solid #c5c6cd",
-  fontSize: "0.9rem",
-  background: "#ffffff",
-  boxSizing: "border-box",
-  fontFamily: "inherit",
-};

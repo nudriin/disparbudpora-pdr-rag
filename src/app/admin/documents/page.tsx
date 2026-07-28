@@ -23,20 +23,20 @@ export default async function DocumentsPage() {
           <h1
             style={{
               fontSize: "1.75rem",
-              fontWeight: "700",
-              color: "#091426",
+              fontWeight: "800",
+              color: "var(--text-primary)",
               margin: 0,
               display: "flex",
               alignItems: "center",
               gap: "0.5rem",
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: "28px", color: "#0058be" }}>
+            <span className="material-symbols-outlined" style={{ fontSize: "28px", color: "var(--text-primary)" }}>
               description
             </span>
             Manajemen Dokumen & Vector Store
           </h1>
-          <p style={{ color: "#45474c", fontSize: "0.875rem", marginTop: "0.25rem" }}>
+          <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", marginTop: "0.25rem" }}>
             Upload dokumen pariwisata, pantau status ingesti PDR, dan kelola database vektor ChromaDB.
           </p>
         </div>

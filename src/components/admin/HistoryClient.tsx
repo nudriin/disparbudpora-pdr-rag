@@ -100,11 +100,11 @@ export default function HistoryClient({ initialConversations }: Props) {
         gap: "1.25rem",
         height: "100%",
         minHeight: 0,
-        background: "#ffffff",
-        borderRadius: "12px",
+        background: "var(--bg-surface)",
+        borderRadius: "22px",
         padding: "1rem",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03)",
-        border: "1px solid #c5c6cd",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
+        border: "1px solid var(--border-color)",
         overflow: "hidden",
       }}
     >
@@ -118,7 +118,7 @@ export default function HistoryClient({ initialConversations }: Props) {
           flexDirection: "column",
           height: "100%",
           minHeight: 0,
-          borderRight: "1px solid #e0e3e5",
+          borderRight: "1px solid var(--border-color)",
           paddingRight: "1rem",
           overflow: "hidden",
         }}
@@ -149,10 +149,11 @@ export default function HistoryClient({ initialConversations }: Props) {
             style={{
               width: "100%",
               padding: "0.6rem 0.75rem 0.6rem 2.2rem",
-              borderRadius: "8px",
-              border: "1px solid #c5c6cd",
+              borderRadius: "12px",
+              border: "1px solid var(--border-color)",
               fontSize: "0.85rem",
-              background: "#f2f4f6",
+              background: "var(--input-bg)",
+              color: "var(--text-primary)",
               boxSizing: "border-box",
               fontFamily: "inherit",
             }}
@@ -171,11 +172,11 @@ export default function HistoryClient({ initialConversations }: Props) {
           }}
         >
           {loadingUsers ? (
-            <div style={{ padding: "1.5rem", textAlign: "center", color: "#75777d", fontSize: "0.85rem" }}>
+            <div style={{ padding: "1.5rem", textAlign: "center", color: "var(--text-secondary)", fontSize: "0.85rem" }}>
               Memuat daftar pengguna...
             </div>
           ) : users.length === 0 ? (
-            <div style={{ padding: "1.5rem", textAlign: "center", color: "#75777d", fontSize: "0.85rem" }}>
+            <div style={{ padding: "1.5rem", textAlign: "center", color: "var(--text-secondary)", fontSize: "0.85rem" }}>
               Tidak ada percakapan ditemukan.
             </div>
           ) : (
@@ -195,11 +196,11 @@ export default function HistoryClient({ initialConversations }: Props) {
                     alignItems: "center",
                     gap: "0.75rem",
                     padding: "0.75rem",
-                    borderRadius: "8px",
+                    borderRadius: "14px",
                     cursor: "pointer",
-                    background: isSelected ? "#d8e2ff" : "transparent",
-                    borderLeft: isSelected ? "4px solid #2170e4" : "4px solid transparent",
-                    transition: "all 0.15s ease",
+                    background: isSelected ? "var(--mint-accent)" : "transparent",
+                    color: isSelected ? "var(--mint-text)" : "var(--text-primary)",
+                    transition: "all 0.18s ease",
                   }}
                 >
                   {/* Avatar Icon */}
@@ -208,8 +209,8 @@ export default function HistoryClient({ initialConversations }: Props) {
                       width: "40px",
                       height: "40px",
                       borderRadius: "50%",
-                      background: isSelected ? "#2170e4" : "#091426",
-                      color: "white",
+                      background: isSelected ? "var(--mint-text)" : "var(--dark-card-bg)",
+                      color: isSelected ? "var(--mint-accent)" : "#ffffff",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -223,12 +224,11 @@ export default function HistoryClient({ initialConversations }: Props) {
 
                   {/* Info User */}
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                       <div
                         style={{
-                          fontWeight: "600",
+                          fontWeight: "700",
                           fontSize: "0.875rem",
-                          color: isSelected ? "#001a42" : "#191c1e",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
@@ -236,7 +236,7 @@ export default function HistoryClient({ initialConversations }: Props) {
                       >
                         {displayName}
                       </div>
-                      <span style={{ fontSize: "0.7rem", color: "#75777d" }}>
+                      <span style={{ fontSize: "0.68rem", opacity: 0.85, flexShrink: 0 }}>
                         {new Date(u.last_active_at).toLocaleTimeString("id-ID", {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -254,24 +254,24 @@ export default function HistoryClient({ initialConversations }: Props) {
                     >
                       <div
                         style={{
-                          fontSize: "0.775rem",
-                          color: "#45474c",
+                          fontSize: "0.75rem",
+                          opacity: 0.85,
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
-                          maxWidth: "160px",
+                          maxWidth: "180px",
                         }}
                       >
-                        {u.last_message}
+                        {u.last_message || "Belum ada pesan"}
                       </div>
                       <span
                         style={{
-                          background: isSelected ? "#2170e4" : "#e0e3e5",
-                          color: isSelected ? "white" : "#45474c",
-                          fontSize: "0.7rem",
-                          padding: "0.1rem 0.45rem",
+                          background: isSelected ? "var(--mint-text)" : "var(--dark-card-bg)",
+                          color: isSelected ? "var(--mint-accent)" : "#ffffff",
+                          fontSize: "0.68rem",
+                          fontWeight: "700",
                           borderRadius: "999px",
-                          fontWeight: "600",
+                          padding: "0.1rem 0.45rem",
                         }}
                       >
                         {u.total_messages}
@@ -298,12 +298,12 @@ export default function HistoryClient({ initialConversations }: Props) {
             <div
               style={{
                 padding: "0.75rem 1rem",
-                borderBottom: "1px solid #e0e3e5",
+                borderBottom: "1px solid var(--border-color)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                background: "#f7f9fb",
-                borderRadius: "8px",
+                background: "var(--input-bg)",
+                borderRadius: "14px",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
@@ -311,13 +311,13 @@ export default function HistoryClient({ initialConversations }: Props) {
                   onClick={() => setShowMobileUserList(true)}
                   className="mobile-user-list-btn"
                   style={{
-                    background: "#d8e2ff",
-                    border: "1px solid #adc6ff",
-                    color: "#0058be",
-                    borderRadius: "6px",
-                    padding: "0.3rem 0.55rem",
+                    background: "var(--mint-accent)",
+                    border: "none",
+                    color: "var(--mint-text)",
+                    borderRadius: "999px",
+                    padding: "0.3rem 0.65rem",
                     fontSize: "0.75rem",
-                    fontWeight: "600",
+                    fontWeight: "700",
                     cursor: "pointer",
                     display: "none",
                     alignItems: "center",
@@ -335,7 +335,7 @@ export default function HistoryClient({ initialConversations }: Props) {
                     width: "38px",
                     height: "38px",
                     borderRadius: "50%",
-                    background: "#091426",
+                    background: "var(--dark-card-bg)",
                     color: "white",
                     display: "flex",
                     alignItems: "center",
@@ -347,15 +347,15 @@ export default function HistoryClient({ initialConversations }: Props) {
                   </span>
                 </div>
                 <div>
-                  <div style={{ fontWeight: "700", color: "#191c1e", fontSize: "0.95rem" }}>
+                  <div style={{ fontWeight: "700", color: "var(--text-primary)", fontSize: "0.95rem" }}>
                     {activeUser.sender_name || `Chat ${activeUser.telegram_chat_id}`}
                     {activeUser.telegram_username && (
-                      <span style={{ fontWeight: "400", color: "#75777d", marginLeft: "0.5rem", fontSize: "0.8rem" }}>
+                      <span style={{ fontWeight: "500", color: "var(--text-secondary)", marginLeft: "0.5rem", fontSize: "0.8rem" }}>
                         (@{activeUser.telegram_username})
                       </span>
                     )}
                   </div>
-                  <div style={{ fontSize: "0.75rem", color: "#75777d" }}>
+                  <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>
                     Telegram ID: <strong>{activeUser.telegram_chat_id}</strong> • Total {activeUser.total_messages} pesan
                   </div>
                 </div>
@@ -369,13 +369,13 @@ export default function HistoryClient({ initialConversations }: Props) {
                 minHeight: 0,
                 overflowY: "auto",
                 padding: "1.25rem",
-                background: "#f7f9fb",
+                background: "var(--input-bg)",
                 display: "flex",
                 flexDirection: "column",
                 gap: "1.25rem",
                 marginTop: "0.5rem",
-                borderRadius: "8px",
-                border: "1px solid #e0e3e5",
+                borderRadius: "14px",
+                border: "1px solid var(--border-color)",
               }}
             >
               {loadingMessages ? (
@@ -434,18 +434,18 @@ export default function HistoryClient({ initialConversations }: Props) {
                       </div>
                     </div>
 
-                    {/* BOT BUBBLE (Rata Kiri - Putih dengan Icon Material Symbols) */}
+                    {/* BOT BUBBLE (Rata Kiri - Neo-Minimalist Style) */}
                     {msg.bot_response && (
                       <div style={{ display: "flex", justifyContent: "flex-start" }}>
                         <div
                           style={{
                             maxWidth: "85%",
-                            background: "#ffffff",
-                            color: "#191c1e",
+                            background: "var(--bg-surface)",
+                            color: "var(--text-primary)",
                             padding: "0.85rem 1.1rem",
-                            borderRadius: "12px 12px 12px 2px",
-                            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-                            border: "1px solid #c5c6cd",
+                            borderRadius: "16px 16px 16px 2px",
+                            boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
+                            border: "1px solid var(--border-color)",
                             fontSize: "0.9rem",
                             lineHeight: "1.5",
                           }}
@@ -463,12 +463,12 @@ export default function HistoryClient({ initialConversations }: Props) {
                             <span
                               style={{
                                 fontSize: "0.7rem",
-                                fontWeight: "600",
+                                fontWeight: "700",
                                 padding: "0.2rem 0.55rem",
                                 borderRadius: "999px",
-                                background: msg.was_answered ? "#f0fff4" : "#fff5f5",
-                                color: msg.was_answered ? "#276749" : "#ba1a1a",
-                                border: msg.was_answered ? "1px solid #c6f6d5" : "1px solid #ffdad6",
+                                background: msg.was_answered ? "rgba(39, 103, 73, 0.15)" : "rgba(186, 26, 26, 0.15)",
+                                color: msg.was_answered ? "#A1EBB4" : "#FFB4A2",
+                                border: msg.was_answered ? "1px solid #2E6B45" : "1px solid #FFB4A2",
                                 display: "inline-flex",
                                 alignItems: "center",
                                 gap: "0.25rem",
@@ -484,9 +484,9 @@ export default function HistoryClient({ initialConversations }: Props) {
                             <span
                               style={{
                                 fontSize: "0.7rem",
-                                color: "#45474c",
-                                background: "#f2f4f6",
-                                border: "1px solid #c5c6cd",
+                                color: "var(--text-secondary)",
+                                background: "var(--input-bg)",
+                                border: "1px solid var(--border-color)",
                                 padding: "0.2rem 0.55rem",
                                 borderRadius: "999px",
                                 fontWeight: "500",

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import AdminSidebar from "./AdminSidebar";
+import { useTheme } from "./ThemeContext";
 
 interface Props {
   adminDisplayName: string;
@@ -10,9 +11,10 @@ interface Props {
 
 export default function AuthedClientLayout({ adminDisplayName, children }: Props) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   return (
-    <div style={{ display: "flex", height: "100vh", overflow: "hidden", backgroundColor: "#f7f9fb" }}>
+    <div style={{ display: "flex", height: "100vh", overflow: "hidden", backgroundColor: "var(--bg-page)" }}>
       {/* Sidebar Google Stitch Deep Navy (Desktop + Mobile Drawer) */}
       <div className={`sidebar-container ${isMobileOpen ? "mobile-open" : ""}`}>
         <AdminSidebar
@@ -29,8 +31,8 @@ export default function AuthedClientLayout({ adminDisplayName, children }: Props
           style={{
             height: "64px",
             flexShrink: 0,
-            background: "#ffffff",
-            borderBottom: "1px solid #c5c6cd",
+            background: "var(--bg-header)",
+            borderBottom: "1px solid var(--border-color)",
             padding: "0 1.25rem",
             display: "flex",
             alignItems: "center",
@@ -38,6 +40,7 @@ export default function AuthedClientLayout({ adminDisplayName, children }: Props
             position: "sticky",
             top: 0,
             zIndex: 40,
+            transition: "background-color 0.25s ease, border-color 0.25s ease",
           }}
         >
           {/* Left: Hamburger Toggle (Mobile) + Judul Sistem & Badge */}
@@ -48,7 +51,7 @@ export default function AuthedClientLayout({ adminDisplayName, children }: Props
               style={{
                 background: "none",
                 border: "none",
-                color: "#091426",
+                color: "var(--text-primary)",
                 cursor: "pointer",
                 padding: "0.25rem",
                 display: "flex",
@@ -63,17 +66,17 @@ export default function AuthedClientLayout({ adminDisplayName, children }: Props
               </span>
             </button>
 
-            <h1 style={{ fontSize: "1.15rem", fontWeight: "700", color: "#091426", margin: 0, letterSpacing: "-0.01em" }}>
+            <h1 style={{ fontSize: "1.15rem", fontWeight: "700", color: "var(--text-primary)", margin: 0, letterSpacing: "-0.01em" }}>
               Tourism Intelligence
             </h1>
             <span
               style={{
                 fontSize: "0.65rem",
                 fontWeight: "700",
-                color: "#0058be",
-                background: "#d8e2ff",
-                padding: "0.15rem 0.45rem",
-                borderRadius: "4px",
+                color: "#1E1F24",
+                background: "#A1EBB4",
+                padding: "0.15rem 0.5rem",
+                borderRadius: "999px",
                 textTransform: "uppercase",
                 letterSpacing: "0.08em",
               }}
@@ -82,26 +85,51 @@ export default function AuthedClientLayout({ adminDisplayName, children }: Props
             </span>
           </div>
 
-          {/* Right: User Status & Icons */}
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem", color: "#45474c" }}>
+          {/* Right: User Status, Theme Switcher & Icons */}
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem", color: "var(--text-secondary)" }}>
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              title={theme === "light" ? "Ganti ke Mode Gelap (Dark Mode)" : "Ganti ke Mode Terang (Light Mode)"}
+              style={{
+                background: "var(--input-bg)",
+                border: "1px solid var(--border-color)",
+                borderRadius: "999px",
+                padding: "0.35rem 0.75rem",
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.35rem",
+                fontSize: "0.78rem",
+                fontWeight: "600",
+                color: "var(--text-primary)",
+                transition: "all 0.2s ease",
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "18px", color: theme === "dark" ? "#FFB4A2" : "#744210" }}>
+                {theme === "dark" ? "light_mode" : "dark_mode"}
+              </span>
+              <span>{theme === "dark" ? "Light" : "Dark"}</span>
+            </button>
+
             <span
               className="material-symbols-outlined"
-              style={{ fontSize: "20px", cursor: "pointer", color: "#45474c" }}
+              style={{ fontSize: "20px", cursor: "pointer", color: "var(--text-secondary)" }}
             >
               notifications
             </span>
             <span
               className="material-symbols-outlined"
-              style={{ fontSize: "20px", cursor: "pointer", color: "#45474c" }}
+              style={{ fontSize: "20px", cursor: "pointer", color: "var(--text-secondary)" }}
             >
               help_outline
             </span>
             <div
               style={{
-                width: "32px",
-                height: "32px",
+                width: "34px",
+                height: "34px",
                 borderRadius: "50%",
-                background: "linear-gradient(135deg, #091426 0%, #2170e4 100%)",
+                background: "linear-gradient(135deg, #1E1F24 0%, #B5B4FF 100%)",
                 color: "white",
                 display: "flex",
                 alignItems: "center",

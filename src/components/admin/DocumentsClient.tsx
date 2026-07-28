@@ -178,63 +178,65 @@ export default function DocumentsClient({ initialDocuments }: Props) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
       {/* ============================================================ */}
-      {/* 📊 STATISTIK WIDGETS (Google Stitch Bento Cards) */}
+      {/* 📊 WIDGET STATISTIK BENTO GRID (Neo-Minimalist Design) */}
       {/* ============================================================ */}
       <div
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-          gap: "1rem",
+          gap: "1.25rem",
         }}
       >
         {/* Stat Card 1: Total Dokumen */}
         <div
           style={{
-            background: "#ffffff",
-            borderRadius: "12px",
-            padding: "1.25rem",
-            border: "1px solid #c5c6cd",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+            background: "var(--dark-card-bg)",
+            color: "var(--dark-card-text)",
+            borderRadius: "22px",
+            padding: "1.35rem 1.25rem",
+            border: "1px solid var(--border-color)",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
             display: "flex",
             flexDirection: "column",
-            gap: "0.75rem",
+            justifyContent: "space-between",
+            minHeight: "130px",
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div
               style={{
-                width: "36px",
-                height: "36px",
-                borderRadius: "8px",
-                background: "#d8e2ff",
-                color: "#0058be",
+                width: "40px",
+                height: "40px",
+                borderRadius: "50%",
+                background: "rgba(255,255,255,0.12)",
+                color: "#A1EBB4",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: "22px" }}>
                 description
               </span>
             </div>
             <span
               style={{
-                fontSize: "0.68rem",
-                fontWeight: "700",
-                background: "#f0fff4",
-                color: "#276749",
-                padding: "0.15rem 0.45rem",
-                borderRadius: "4px",
+                fontSize: "0.72rem",
+                fontWeight: "800",
+                background: "#A1EBB4",
+                color: "#0D381B",
+                padding: "0.2rem 0.6rem",
+                borderRadius: "999px",
               }}
             >
               {completedDocsCount}/{documents.length} Selesai
             </span>
           </div>
           <div>
-            <h3 style={{ fontSize: "1.75rem", fontWeight: "700", color: "#091426", margin: 0, lineHeight: 1 }}>
+            <h3 style={{ fontSize: "1.85rem", fontWeight: "800", margin: "0.75rem 0 0 0", lineHeight: 1 }}>
               {documents.length}
             </h3>
-            <p style={{ fontSize: "0.75rem", fontWeight: "600", color: "#45474c", margin: "0.35rem 0 0 0" }}>
+            <p style={{ fontSize: "0.78rem", fontWeight: "600", color: "#A1EBB4", margin: "0.35rem 0 0 0", opacity: 0.9 }}>
               Total Dokumen Terdaftar
             </p>
           </div>
@@ -243,40 +245,42 @@ export default function DocumentsClient({ initialDocuments }: Props) {
         {/* Stat Card 2: Total Parent Chunks */}
         <div
           style={{
-            background: "#ffffff",
-            borderRadius: "12px",
-            padding: "1.25rem",
-            border: "1px solid #c5c6cd",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+            background: "var(--mint-accent)",
+            color: "var(--mint-text)",
+            borderRadius: "22px",
+            padding: "1.35rem 1.25rem",
+            border: "1px solid var(--border-color)",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
             display: "flex",
             flexDirection: "column",
-            gap: "0.75rem",
+            justifyContent: "space-between",
+            minHeight: "130px",
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div
               style={{
-                width: "36px",
-                height: "36px",
-                borderRadius: "8px",
-                background: "#f0fff4",
-                color: "#276749",
+                width: "40px",
+                height: "40px",
+                borderRadius: "50%",
+                background: "rgba(0,0,0,0.08)",
+                color: "var(--mint-text)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: "22px" }}>
                 inventory_2
               </span>
             </div>
           </div>
           <div>
-            <h3 style={{ fontSize: "1.75rem", fontWeight: "700", color: "#091426", margin: 0, lineHeight: 1 }}>
+            <h3 style={{ fontSize: "1.85rem", fontWeight: "800", margin: "0.75rem 0 0 0", lineHeight: 1 }}>
               {totalParentCount.toLocaleString()}
             </h3>
-            <p style={{ fontSize: "0.75rem", fontWeight: "600", color: "#45474c", margin: "0.35rem 0 0 0" }}>
-              Total Parent Chunks (LLM Context)
+            <p style={{ fontSize: "0.78rem", fontWeight: "600", color: "var(--mint-text)", margin: "0.35rem 0 0 0", opacity: 0.9 }}>
+              Total Parent Chunks (Context)
             </p>
           </div>
         </div>
@@ -284,40 +288,42 @@ export default function DocumentsClient({ initialDocuments }: Props) {
         {/* Stat Card 3: Total Child Chunks */}
         <div
           style={{
-            background: "#ffffff",
-            borderRadius: "12px",
-            padding: "1.25rem",
-            border: "1px solid #c5c6cd",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+            background: "var(--lavender-accent)",
+            color: "var(--lavender-text)",
+            borderRadius: "22px",
+            padding: "1.35rem 1.25rem",
+            border: "1px solid var(--border-color)",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
             display: "flex",
             flexDirection: "column",
-            gap: "0.75rem",
+            justifyContent: "space-between",
+            minHeight: "130px",
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div
               style={{
-                width: "36px",
-                height: "36px",
-                borderRadius: "8px",
-                background: "#feebc8",
-                color: "#744210",
+                width: "40px",
+                height: "40px",
+                borderRadius: "50%",
+                background: "rgba(0,0,0,0.08)",
+                color: "var(--lavender-text)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: "22px" }}>
                 grid_view
               </span>
             </div>
           </div>
           <div>
-            <h3 style={{ fontSize: "1.75rem", fontWeight: "700", color: "#091426", margin: 0, lineHeight: 1 }}>
+            <h3 style={{ fontSize: "1.85rem", fontWeight: "800", margin: "0.75rem 0 0 0", lineHeight: 1 }}>
               {totalChildCount.toLocaleString()}
             </h3>
-            <p style={{ fontSize: "0.75rem", fontWeight: "600", color: "#45474c", margin: "0.35rem 0 0 0" }}>
-              Total Child Chunks (Vector Embedded)
+            <p style={{ fontSize: "0.78rem", fontWeight: "600", color: "var(--lavender-text)", margin: "0.35rem 0 0 0", opacity: 0.9 }}>
+              Total Child Chunks (Vectors)
             </p>
           </div>
         </div>
@@ -325,55 +331,57 @@ export default function DocumentsClient({ initialDocuments }: Props) {
         {/* Stat Card 4: Total Storage Size */}
         <div
           style={{
-            background: "#ffffff",
-            borderRadius: "12px",
-            padding: "1.25rem",
-            border: "1px solid #c5c6cd",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+            background: "var(--bg-surface)",
+            color: "var(--text-primary)",
+            borderRadius: "22px",
+            padding: "1.35rem 1.25rem",
+            border: "1px solid var(--border-color)",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
             display: "flex",
             flexDirection: "column",
-            gap: "0.75rem",
+            justifyContent: "space-between",
+            minHeight: "130px",
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div
               style={{
-                width: "36px",
-                height: "36px",
-                borderRadius: "8px",
-                background: "#ffdad6",
-                color: "#ba1a1a",
+                width: "40px",
+                height: "40px",
+                borderRadius: "50%",
+                background: "var(--input-bg)",
+                color: "var(--text-primary)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: "22px" }}>
                 database
               </span>
             </div>
           </div>
           <div>
-            <h3 style={{ fontSize: "1.75rem", fontWeight: "700", color: "#091426", margin: 0, lineHeight: 1 }}>
+            <h3 style={{ fontSize: "1.85rem", fontWeight: "800", margin: "0.75rem 0 0 0", lineHeight: 1 }}>
               {formatBytes(totalSizeBytes)}
             </h3>
-            <p style={{ fontSize: "0.75rem", fontWeight: "600", color: "#45474c", margin: "0.35rem 0 0 0" }}>
-              Total Ukuran Penyimpanan Berkas
+            <p style={{ fontSize: "0.78rem", fontWeight: "600", color: "var(--text-secondary)", margin: "0.35rem 0 0 0" }}>
+              Ukuran Penyimpanan Berkas
             </p>
           </div>
         </div>
       </div>
 
       {/* ============================================================ */}
-      {/* UPLOAD ZONE CARD (Google Stitch Design) */}
+      {/* UPLOAD ZONE CARD (Neo-Minimalist Design) */}
       {/* ============================================================ */}
       <div
         style={{
-          background: "#ffffff",
-          borderRadius: "12px",
+          background: "var(--bg-surface)",
+          borderRadius: "22px",
           padding: "1.5rem",
-          border: "1px solid #c5c6cd",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+          border: "1px solid var(--border-color)",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.35rem" }}>
@@ -529,10 +537,10 @@ export default function DocumentsClient({ initialDocuments }: Props) {
       {/* ============================================================ */}
       <div
         style={{
-          background: "#ffffff",
-          borderRadius: "12px",
-          border: "1px solid #c5c6cd",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+          background: "var(--bg-surface)",
+          borderRadius: "22px",
+          border: "1px solid var(--border-color)",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
           overflow: "hidden",
         }}
       >
@@ -548,10 +556,10 @@ export default function DocumentsClient({ initialDocuments }: Props) {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <span className="material-symbols-outlined" style={{ fontSize: "20px", color: "#0058be" }}>
+            <span className="material-symbols-outlined" style={{ fontSize: "22px", color: "var(--text-primary)" }}>
               description
             </span>
-            <h2 style={{ fontSize: "1.1rem", fontWeight: "600", color: "#091426", margin: 0 }}>
+            <h2 style={{ fontSize: "1.1rem", fontWeight: "700", color: "var(--text-primary)", margin: 0 }}>
               Daftar Dokumen Basis Pengetahuan ({filteredDocuments.length} dari {documents.length})
             </h2>
           </div>
@@ -560,12 +568,12 @@ export default function DocumentsClient({ initialDocuments }: Props) {
             disabled={resetting}
             style={{
               padding: "0.5rem 1rem",
-              background: resetting ? "#75777d" : "#ba1a1a",
-              color: "white",
+              background: resetting ? "var(--text-secondary)" : "#FFB4A2",
+              color: "#690005",
               border: "none",
-              borderRadius: "8px",
+              borderRadius: "999px",
               fontSize: "0.85rem",
-              fontWeight: "600",
+              fontWeight: "700",
               cursor: resetting ? "not-allowed" : "pointer",
               display: "inline-flex",
               alignItems: "center",
@@ -575,7 +583,7 @@ export default function DocumentsClient({ initialDocuments }: Props) {
             <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
               delete_sweep
             </span>
-            {resetting ? "Mereset..." : "Reset Semua Vector"}
+            {resetting ? "Mereset Vector..." : "Reset Semua Vector"}
           </button>
         </div>
 
@@ -583,12 +591,12 @@ export default function DocumentsClient({ initialDocuments }: Props) {
         <div
           style={{
             padding: "0.75rem 1.5rem 1.25rem",
-            borderBottom: "1px solid #c5c6cd",
+            borderBottom: "1px solid var(--border-color)",
             display: "flex",
             gap: "1rem",
             flexWrap: "wrap",
             alignItems: "center",
-            background: "#f7f9fb",
+            background: "var(--input-bg)",
           }}
         >
           {/* Input Search Nama File */}
@@ -614,10 +622,11 @@ export default function DocumentsClient({ initialDocuments }: Props) {
               style={{
                 width: "100%",
                 padding: "0.6rem 0.75rem 0.6rem 2.2rem",
-                borderRadius: "8px",
-                border: "1px solid #c5c6cd",
+                borderRadius: "12px",
+                border: "1px solid var(--border-color)",
                 fontSize: "0.85rem",
-                background: "#ffffff",
+                background: "var(--bg-surface)",
+                color: "var(--text-primary)",
                 boxSizing: "border-box",
                 fontFamily: "inherit",
               }}
@@ -626,16 +635,17 @@ export default function DocumentsClient({ initialDocuments }: Props) {
 
           {/* Filter Status Dropdown */}
           <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-            <span style={{ fontSize: "0.8rem", fontWeight: "600", color: "#45474c" }}>Status:</span>
+            <span style={{ fontSize: "0.8rem", fontWeight: "700", color: "var(--text-secondary)" }}>Status:</span>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
               style={{
                 padding: "0.6rem 0.75rem",
-                borderRadius: "8px",
-                border: "1px solid #c5c6cd",
+                borderRadius: "12px",
+                border: "1px solid var(--border-color)",
                 fontSize: "0.85rem",
-                background: "#ffffff",
+                background: "var(--bg-surface)",
+                color: "var(--text-primary)",
                 fontFamily: "inherit",
                 cursor: "pointer",
               }}
@@ -650,16 +660,17 @@ export default function DocumentsClient({ initialDocuments }: Props) {
 
           {/* Sort By Dropdown */}
           <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-            <span style={{ fontSize: "0.8rem", fontWeight: "600", color: "#45474c" }}>Urutkan:</span>
+            <span style={{ fontSize: "0.8rem", fontWeight: "700", color: "var(--text-secondary)" }}>Urutkan:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               style={{
                 padding: "0.6rem 0.75rem",
-                borderRadius: "8px",
-                border: "1px solid #c5c6cd",
+                borderRadius: "12px",
+                border: "1px solid var(--border-color)",
                 fontSize: "0.85rem",
-                background: "#ffffff",
+                background: "var(--bg-surface)",
+                color: "var(--text-primary)",
                 fontFamily: "inherit",
                 cursor: "pointer",
               }}
@@ -674,7 +685,7 @@ export default function DocumentsClient({ initialDocuments }: Props) {
 
         {/* Tabel Dokumen */}
         {filteredDocuments.length === 0 ? (
-          <div style={{ padding: "3rem", textAlign: "center", color: "#75777d", fontSize: "0.9rem" }}>
+          <div style={{ padding: "3rem", textAlign: "center", color: "var(--text-secondary)", fontSize: "0.9rem" }}>
             {documents.length === 0
               ? "Belum ada dokumen dalam basis pengetahuan. Unggah berkas pertama Anda di atas."
               : "Tidak ada dokumen yang cocok dengan kata kunci atau filter terpilih."}
@@ -683,22 +694,22 @@ export default function DocumentsClient({ initialDocuments }: Props) {
           <div style={{ overflowX: "auto", width: "100%" }}>
             <table style={{ width: "100%", minWidth: "750px", borderCollapse: "collapse", textAlign: "left", fontSize: "0.875rem", tableLayout: "fixed" }}>
               <thead>
-                <tr style={{ background: "#f2f4f6", borderBottom: "1px solid #c5c6cd" }}>
-                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700", width: "30%" }}>Nama File</th>
-                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700", width: "14%" }}>Status</th>
-                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700", width: "14%" }}>Parent / Child</th>
-                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700", width: "10%" }}>Ukuran</th>
-                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700", width: "14%" }}>Tanggal Upload</th>
-                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700", width: "18%" }}>Aksi</th>
+                <tr style={{ background: "var(--input-bg)", borderBottom: "1px solid var(--border-color)" }}>
+                  <th style={{ padding: "0.85rem 1rem", color: "var(--text-secondary)", fontWeight: "800", width: "30%" }}>Nama File</th>
+                  <th style={{ padding: "0.85rem 1rem", color: "var(--text-secondary)", fontWeight: "800", width: "14%" }}>Status</th>
+                  <th style={{ padding: "0.85rem 1rem", color: "var(--text-secondary)", fontWeight: "800", width: "14%" }}>Parent / Child</th>
+                  <th style={{ padding: "0.85rem 1rem", color: "var(--text-secondary)", fontWeight: "800", width: "10%" }}>Ukuran</th>
+                  <th style={{ padding: "0.85rem 1rem", color: "var(--text-secondary)", fontWeight: "800", width: "14%" }}>Tanggal Upload</th>
+                  <th style={{ padding: "0.85rem 1rem", color: "var(--text-secondary)", fontWeight: "800", width: "18%" }}>Aksi</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredDocuments.map((doc) => {
-                  const cfg = STATUS_CONFIG[doc.status] || { label: doc.status, bg: "#f2f4f6", color: "#45474c", icon: "info" };
+                  const cfg = STATUS_CONFIG[doc.status] || { label: doc.status, bg: "var(--input-bg)", color: "var(--text-secondary)", icon: "info" };
 
                   return (
-                    <tr key={doc.id} style={{ borderBottom: "1px solid #e0e3e5" }}>
-                      <td style={{ padding: "0.85rem 1rem", color: "#191c1e", fontWeight: "600", overflow: "hidden" }}>
+                    <tr key={doc.id} style={{ borderBottom: "1px solid var(--border-color)" }}>
+                      <td style={{ padding: "0.85rem 1rem", color: "var(--text-primary)", fontWeight: "700", overflow: "hidden" }}>
                         <div
                           title={doc.file_name}
                           style={{
@@ -709,7 +720,7 @@ export default function DocumentsClient({ initialDocuments }: Props) {
                             whiteSpace: "nowrap",
                           }}
                         >
-                          <span className="material-symbols-outlined" style={{ fontSize: "18px", color: "#0058be", flexShrink: 0 }}>
+                          <span className="material-symbols-outlined" style={{ fontSize: "18px", color: "var(--text-primary)", flexShrink: 0 }}>
                             description
                           </span>
                           <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
@@ -725,7 +736,7 @@ export default function DocumentsClient({ initialDocuments }: Props) {
                             padding: "0.2rem 0.55rem",
                             borderRadius: "999px",
                             fontSize: "0.75rem",
-                            fontWeight: "600",
+                            fontWeight: "700",
                             display: "inline-flex",
                             alignItems: "center",
                             gap: "0.25rem",
@@ -737,13 +748,13 @@ export default function DocumentsClient({ initialDocuments }: Props) {
                           {cfg.label}
                         </span>
                       </td>
-                      <td style={{ padding: "0.85rem 1rem", color: "#45474c", fontWeight: "500", whiteSpace: "nowrap" }}>
+                      <td style={{ padding: "0.85rem 1rem", color: "var(--text-primary)", fontWeight: "600", whiteSpace: "nowrap" }}>
                         {doc.parent_count} / {doc.child_count}
                       </td>
-                      <td style={{ padding: "0.85rem 1rem", color: "#45474c", whiteSpace: "nowrap" }}>
+                      <td style={{ padding: "0.85rem 1rem", color: "var(--text-primary)", whiteSpace: "nowrap" }}>
                         {formatBytes(doc.file_size_bytes)}
                       </td>
-                      <td style={{ padding: "0.85rem 1rem", color: "#75777d", whiteSpace: "nowrap" }}>
+                      <td style={{ padding: "0.85rem 1rem", color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
                         {new Date(doc.created_at).toLocaleDateString("id-ID")}
                       </td>
                       <td style={{ padding: "0.85rem 1rem" }}>
