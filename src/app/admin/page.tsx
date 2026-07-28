@@ -135,170 +135,128 @@ export default async function AdminDashboard() {
   return (
     <AuthedLayout>
       <div style={{ display: "flex", flexDirection: "column", gap: "1.75rem" }}>
-        {/* Hero Header Banner (Bundaran Palangka Raya) */}
+        {/* Textured Dark Green Grain Hero Header Banner */}
         <div
           style={{
             position: "relative",
             width: "100%",
-            minHeight: "220px",
             borderRadius: "24px",
-            overflow: "hidden",
-            boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
-            padding: "1.75rem 2rem",
+            background: "#1E422B",
+            backgroundImage: "radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px)",
+            backgroundSize: "16px 16px",
+            color: "#ffffff",
+            padding: "2rem",
             boxSizing: "border-box",
             display: "flex",
             flexDirection: "column",
-            justifyContent: "space-between",
+            alignItems: "center",
+            textAlign: "center",
+            gap: "1rem",
+            boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
+            overflow: "hidden",
           }}
         >
-          {/* Layer 1: Background Image dengan Filter Blur & Darkened Brightness */}
+          {/* Dashed Corner Circles */}
+          <div style={{ position: "absolute", top: "-24px", left: "-24px", width: "80px", height: "80px", border: "1.5px dashed rgba(255, 255, 255, 0.3)", borderRadius: "50%" }} />
+          <div style={{ position: "absolute", bottom: "-24px", right: "-24px", width: "80px", height: "80px", border: "1.5px dashed rgba(255, 255, 255, 0.3)", borderRadius: "50%" }} />
+
+          {/* Mint Green Asterisk Icon */}
+          <span className="material-symbols-outlined" style={{ fontSize: "36px", color: "#A1EBB4" }}>
+            asterisk
+          </span>
+
+          {/* Main Title & Description */}
+          <div style={{ maxWidth: "720px" }}>
+            <h1
+              style={{
+                fontSize: "2rem",
+                fontWeight: "800",
+                color: "#ffffff",
+                margin: "0 0 0.4rem 0",
+                letterSpacing: "-0.02em",
+                textShadow: "0 2px 8px rgba(0,0,0,0.3)",
+              }}
+            >
+              Pusat Kecerdasan Pariwisata Palangka Raya
+            </h1>
+            <p
+              style={{
+                color: "rgba(255, 255, 255, 0.9)",
+                fontSize: "0.925rem",
+                margin: 0,
+                lineHeight: 1.5,
+              }}
+            >
+              Kelola dokumen basis pengetahuan, pantau performa analisis Ragas, dan pantau aktivitas layanan Chatbot Telegram berbasis Parent Document Retrieval (PDR).
+            </p>
+          </div>
+
+          {/* Quick Info Chips */}
           <div
             style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundImage: `url("/images/bundaran_palangka_raya.jpeg")`,
-              backgroundSize: "cover",
-              backgroundPosition: "center 40%",
-              filter: "blur(2px) brightness(0.80)",
-              transform: "scale(1.05)",
-              zIndex: 0,
+              display: "flex",
+              alignItems: "center",
+              gap: "0.6rem",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              marginTop: "0.25rem",
             }}
-          />
-
-          {/* Layer 2: Overlay Hitam Transparan untuk Kontras & Legibilitas Teks */}
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: "linear-gradient(135deg, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.45) 50%, rgba(0, 0, 0, 0.75) 100%)",
-              zIndex: 1,
-            }}
-          />
-
-          {/* Layer 3: Konten Utama Hero Header (Z-Index 2 agar Teks Tajam & Sangat Mudah Dibaca) */}
-          <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", justifyContent: "space-between", gap: "1rem" }}>
-            {/* Top Badge Tag */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem" }}>
+          >
+            {[
+              { label: "Palangka Raya", icon: "location_on" },
+              { label: "Vector Search Active", icon: "database" },
+              { label: "Telegram Bot Online", icon: "smart_toy" },
+              { label: "PDR Chunking", icon: "account_tree" },
+            ].map((chip, idx) => (
               <span
+                key={idx}
                 style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.35rem",
-                  background: "rgba(255, 255, 255, 0.18)",
-                  backdropFilter: "blur(12px)",
+                  background: "rgba(255, 255, 255, 0.15)",
+                  backdropFilter: "blur(8px)",
                   color: "#ffffff",
-                  padding: "0.35rem 0.85rem",
-                  borderRadius: "999px",
-                  fontSize: "0.78rem",
-                  fontWeight: "700",
-                  border: "1px solid rgba(255, 255, 255, 0.25)",
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: "16px", color: "#A1EBB4" }}>
-                  location_on
-                </span>
-                Palangka Raya, Kalimantan Tengah
-              </span>
-
-              <span
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.35rem",
-                  background: "rgba(161, 235, 180, 0.25)",
-                  backdropFilter: "blur(12px)",
-                  color: "#A1EBB4",
                   padding: "0.35rem 0.85rem",
                   borderRadius: "999px",
                   fontSize: "0.75rem",
-                  fontWeight: "800",
-                  border: "1px solid rgba(161, 235, 180, 0.4)",
+                  fontWeight: "700",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.35rem",
+                  border: "1px solid rgba(255, 255, 255, 0.25)",
                 }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
-                  travel_explore
+                <span className="material-symbols-outlined" style={{ fontSize: "14px", color: "#A1EBB4" }}>
+                  {chip.icon}
                 </span>
-                Pariwisata Hub Live
+                {chip.label}
               </span>
-            </div>
-
-            {/* Main Title & Description */}
-            <div>
-              <h1
-                style={{
-                  fontSize: "2.35rem",
-                  fontWeight: "800",
-                  color: "#ffffff",
-                  margin: 0,
-                  letterSpacing: "-0.02em",
-                  textShadow: "0 2px 10px rgba(0,0,0,0.5)",
-                }}
-              >
-                Palangka Raya
-              </h1>
-              <p
-                style={{
-                  color: "rgba(255, 255, 255, 0.92)",
-                  fontSize: "0.925rem",
-                  marginTop: "0.35rem",
-                  marginBottom: 0,
-                  maxWidth: "640px",
-                  lineHeight: 1.45,
-                  textShadow: "0 1px 6px rgba(0,0,0,0.5)",
-                }}
-              >
-                Pusat Data Kecerdasan Pariwisata Kota Cantik & Layanan Chatbot Telegram Berbasis Parent Document Retrieval (PDR)
-              </p>
-            </div>
-
-            {/* Quick Info Chips */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.6rem",
-                flexWrap: "wrap",
-                marginTop: "0.5rem",
-              }}
-            >
-              {[
-                { label: "Bundaran Besar", icon: "photo_camera" },
-                { label: "Vector Search Active", icon: "database" },
-                { label: "Telegram Bot Online", icon: "smart_toy" },
-              ].map((chip, idx) => (
-                <span
-                  key={idx}
-                  style={{
-                    background: "rgba(0, 0, 0, 0.45)",
-                    backdropFilter: "blur(8px)",
-                    color: "rgba(255, 255, 255, 0.95)",
-                    padding: "0.3rem 0.75rem",
-                    borderRadius: "999px",
-                    fontSize: "0.75rem",
-                    fontWeight: "600",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "0.3rem",
-                    border: "1px solid rgba(255, 255, 255, 0.2)",
-                  }}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: "14px", color: "#B5B4FF" }}>
-                    {chip.icon}
-                  </span>
-                  {chip.label}
-                </span>
-              ))}
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* 5 Stat Cards Grid (Neo-Minimalist Bento Design) */}
+        {/* Dashed Accent Divider with Asterisk Icon */}
+        <div style={{ position: "relative", width: "100%", margin: "0.25rem 0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center" }}>
+            <div style={{ width: "100%", borderTop: "1.5px dashed var(--border-color)" }} />
+          </div>
+          <div
+            style={{
+              position: "relative",
+              zIndex: 2,
+              background: "var(--bg-page)",
+              padding: "0 0.75rem",
+              color: "#2E6B45",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.25rem",
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: "20px", color: "#2E6B45" }}>
+              asterisk
+            </span>
+          </div>
+        </div>
+
+        {/* 5 Stat Cards Grid (Neo-Minimalist Bento Design with Dashed Accents) */}
         <div
           style={{
             display: "grid",
@@ -310,6 +268,7 @@ export default async function AdminDashboard() {
             <div
               key={card.label}
               style={{
+                position: "relative",
                 background: card.bg,
                 color: card.textColor,
                 borderRadius: "22px",
@@ -320,9 +279,13 @@ export default async function AdminDashboard() {
                 flexDirection: "column",
                 justifyContent: "space-between",
                 minHeight: "135px",
+                overflow: "hidden",
                 transition: "transform 0.2s ease, boxShadow 0.2s ease",
               }}
             >
+              {/* Dashed Corner Circle Accent */}
+              <div style={{ position: "absolute", bottom: "-18px", right: "-18px", width: "60px", height: "60px", borderRadius: "50%", border: "1.5px dashed var(--border-color)" }} />
+
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div
                   style={{
@@ -367,9 +330,33 @@ export default async function AdminDashboard() {
           ))}
         </div>
 
-        {/* Tabel Percakapan Terbaru (Neo-Minimalist Card) */}
+        {/* Dashed Accent Divider with Asterisk Icon */}
+        <div style={{ position: "relative", width: "100%", margin: "0.25rem 0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center" }}>
+            <div style={{ width: "100%", borderTop: "1.5px dashed var(--border-color)" }} />
+          </div>
+          <div
+            style={{
+              position: "relative",
+              zIndex: 2,
+              background: "var(--bg-page)",
+              padding: "0 0.75rem",
+              color: "#2E6B45",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.25rem",
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: "20px", color: "#2E6B45" }}>
+              asterisk
+            </span>
+          </div>
+        </div>
+
+        {/* Tabel Percakapan Terbaru (Neo-Minimalist Card with Dashed Accents) */}
         <div
           style={{
+            position: "relative",
             background: "var(--bg-surface)",
             borderRadius: "22px",
             border: "1px solid var(--border-color)",
@@ -377,6 +364,9 @@ export default async function AdminDashboard() {
             overflow: "hidden",
           }}
         >
+          {/* Dashed Corner Circle Accent */}
+          <div style={{ position: "absolute", top: "-22px", right: "-22px", width: "70px", height: "70px", borderRadius: "50%", border: "1.5px dashed var(--border-color)" }} />
+
           <div
             style={{
               padding: "1.25rem 1.5rem",

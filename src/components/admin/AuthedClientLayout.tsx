@@ -32,7 +32,7 @@ export default function AuthedClientLayout({ adminDisplayName, children }: Props
             height: "64px",
             flexShrink: 0,
             background: "var(--bg-header)",
-            borderBottom: "1px solid var(--border-color)",
+            borderBottom: "1px dashed var(--border-color)",
             padding: "0 1.25rem",
             display: "flex",
             alignItems: "center",
@@ -66,23 +66,14 @@ export default function AuthedClientLayout({ adminDisplayName, children }: Props
               </span>
             </button>
 
-            <h1 style={{ fontSize: "1.15rem", fontWeight: "700", color: "var(--text-primary)", margin: 0, letterSpacing: "-0.01em" }}>
-              Disparbudpora AI
-            </h1>
-            {/* <span
-              style={{
-                fontSize: "0.65rem",
-                fontWeight: "700",
-                color: "#1E1F24",
-                background: "#A1EBB4",
-                padding: "0.15rem 0.5rem",
-                borderRadius: "999px",
-                textTransform: "uppercase",
-                letterSpacing: "0.08em",
-              }}
-            >
-              Beta
-            </span> */}
+            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: "18px", color: "#2E6B45" }}>
+                asterisk
+              </span>
+              <h1 style={{ fontSize: "1.15rem", fontWeight: "800", color: "var(--text-primary)", margin: 0, letterSpacing: "-0.01em" }}>
+                Disparbudpora AI
+              </h1>
+            </div>
           </div>
 
           {/* Right: User Status, Theme Switcher & Icons */}
@@ -93,7 +84,7 @@ export default function AuthedClientLayout({ adminDisplayName, children }: Props
               title={theme === "light" ? "Ganti ke Mode Gelap (Dark Mode)" : "Ganti ke Mode Terang (Light Mode)"}
               style={{
                 background: "var(--input-bg)",
-                border: "1px solid var(--border-color)",
+                border: "1px dashed var(--border-color)",
                 borderRadius: "999px",
                 padding: "0.35rem 0.75rem",
                 cursor: "pointer",
@@ -101,7 +92,7 @@ export default function AuthedClientLayout({ adminDisplayName, children }: Props
                 alignItems: "center",
                 gap: "0.35rem",
                 fontSize: "0.78rem",
-                fontWeight: "600",
+                fontWeight: "700",
                 color: "var(--text-primary)",
                 transition: "all 0.2s ease",
               }}
@@ -143,8 +134,17 @@ export default function AuthedClientLayout({ adminDisplayName, children }: Props
           </div>
         </header>
 
-        {/* Canvas Isi Halaman */}
-        <main className="main-content-canvas" style={{ flex: 1, padding: "1.5rem", overflowY: "auto" }}>
+        {/* Canvas Isi Halaman dengan Background Dot Matrix Grid */}
+        <main
+          className="main-content-canvas"
+          style={{
+            flex: 1,
+            padding: "1.5rem",
+            overflowY: "auto",
+            backgroundImage: "radial-gradient(var(--border-color) 1.2px, transparent 1.2px)",
+            backgroundSize: "24px 24px",
+          }}
+        >
           {children}
         </main>
       </div>

@@ -544,22 +544,32 @@ export default function DocumentsClient({ initialDocuments }: Props) {
           overflow: "hidden",
         }}
       >
-        {/* Header Baris 1: Judul & Tombol Reset */}
+        {/* Header Baris 1: Judul & Reset All Vectors */}
         <div
           style={{
-            padding: "1.25rem 1.5rem 0.75rem",
+            position: "relative",
+            padding: "1.25rem 1.5rem",
+            borderBottom: "1px dashed var(--border-color)",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
             flexWrap: "wrap",
-            gap: "0.75rem",
+            gap: "1rem",
+            background: "var(--bg-surface)",
+            overflow: "hidden",
           }}
         >
+          {/* Dashed Corner Circle Accent */}
+          <div style={{ position: "absolute", top: "-22px", right: "-22px", width: "70px", height: "70px", borderRadius: "50%", border: "1.5px dashed var(--border-color)" }} />
+
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <span className="material-symbols-outlined" style={{ fontSize: "22px", color: "var(--text-primary)" }}>
+            <span className="material-symbols-outlined" style={{ fontSize: "18px", color: "#2E6B45" }}>
+              asterisk
+            </span>
+            <span className="material-symbols-outlined" style={{ fontSize: "24px", color: "#A1EBB4" }}>
               description
             </span>
-            <h2 style={{ fontSize: "1.1rem", fontWeight: "700", color: "var(--text-primary)", margin: 0 }}>
+            <h2 style={{ fontSize: "1.1rem", fontWeight: "800", color: "var(--text-primary)", margin: 0 }}>
               Daftar Dokumen Basis Pengetahuan ({filteredDocuments.length} dari {documents.length})
             </h2>
           </div>

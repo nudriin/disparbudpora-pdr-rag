@@ -135,13 +135,21 @@ export default function HistoryClient({ initialConversations }: Props) {
         style={{
           display: "flex",
           flexDirection: "column",
-          height: "100%",
-          minHeight: 0,
-          borderRight: "1px solid var(--border-color)",
+          // borderRight: "1px dashed var(--border-color)",
           paddingRight: "1rem",
           overflow: "hidden",
         }}
       >
+        {/* Header Asterisk Badge */}
+        <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", marginBottom: "0.6rem" }}>
+          <span className="material-symbols-outlined" style={{ fontSize: "16px", color: "#2E6B45" }}>
+            asterisk
+          </span>
+          <span style={{ fontSize: "0.75rem", fontWeight: "800", color: "var(--text-secondary)" }}>
+            Riwayat Chat Telegram
+          </span>
+        </div>
+
         {/* Tombol Export Ragas Dataset */}
         <button
           onClick={() => setShowExportModal(true)}
