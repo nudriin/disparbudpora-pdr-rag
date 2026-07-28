@@ -28,12 +28,16 @@ export default function AdminSidebar({ adminName }: AdminSidebarProps) {
     <aside
       style={{
         width: "260px",
+        height: "100vh",
+        position: "sticky",
+        top: 0,
         background: "#091426",
         color: "#ffffff",
         display: "flex",
         flexDirection: "column",
         flexShrink: 0,
         borderRight: "1px solid #1e293b",
+        zIndex: 50,
       }}
     >
       {/* Header Brand */}

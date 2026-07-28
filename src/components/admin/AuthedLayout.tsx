@@ -16,16 +16,17 @@ export default async function AuthedLayout({
   const adminDisplayName = session.fullName || session.email.split("@")[0];
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", backgroundColor: "#f7f9fb" }}>
+    <div style={{ display: "flex", height: "100vh", overflow: "hidden", backgroundColor: "#f7f9fb" }}>
       {/* Sidebar Google Stitch Deep Navy */}
       <AdminSidebar adminName={adminDisplayName} />
 
       {/* Area Konten Utama */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, height: "100vh", overflow: "hidden" }}>
         {/* Top App Header Bar */}
         <header
           style={{
             height: "64px",
+            flexShrink: 0,
             background: "#ffffff",
             borderBottom: "1px solid #c5c6cd",
             padding: "0 2rem",

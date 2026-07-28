@@ -681,15 +681,15 @@ export default function DocumentsClient({ initialDocuments }: Props) {
           </div>
         ) : (
           <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "0.875rem" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "0.875rem", tableLayout: "fixed" }}>
               <thead>
                 <tr style={{ background: "#f2f4f6", borderBottom: "1px solid #c5c6cd" }}>
-                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700" }}>Nama File</th>
-                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700" }}>Status</th>
-                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700" }}>Parent / Child</th>
-                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700" }}>Ukuran</th>
-                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700" }}>Tanggal Upload</th>
-                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700" }}>Aksi</th>
+                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700", width: "36%" }}>Nama File</th>
+                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700", width: "14%" }}>Status</th>
+                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700", width: "12%" }}>Parent / Child</th>
+                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700", width: "10%" }}>Ukuran</th>
+                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700", width: "12%" }}>Tanggal Upload</th>
+                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700", width: "16%" }}>Aksi</th>
                 </tr>
               </thead>
               <tbody>
@@ -698,12 +698,23 @@ export default function DocumentsClient({ initialDocuments }: Props) {
 
                   return (
                     <tr key={doc.id} style={{ borderBottom: "1px solid #e0e3e5" }}>
-                      <td style={{ padding: "0.85rem 1rem", color: "#191c1e", fontWeight: "600" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                          <span className="material-symbols-outlined" style={{ fontSize: "18px", color: "#0058be" }}>
+                      <td style={{ padding: "0.85rem 1rem", color: "#191c1e", fontWeight: "600", overflow: "hidden" }}>
+                        <div
+                          title={doc.file_name}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.4rem",
+                            overflow: "hidden",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: "18px", color: "#0058be", flexShrink: 0 }}>
                             description
                           </span>
-                          {doc.file_name}
+                          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {doc.file_name}
+                          </span>
                         </div>
                       </td>
                       <td style={{ padding: "0.85rem 1rem" }}>
