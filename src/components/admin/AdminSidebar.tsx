@@ -12,9 +12,15 @@ const NAV_ITEMS = [
 
 interface AdminSidebarProps {
   adminName: string;
+  isMobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
-export default function AdminSidebar({ adminName }: AdminSidebarProps) {
+export default function AdminSidebar({
+  adminName,
+  isMobileOpen = false,
+  onCloseMobile,
+}: AdminSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -24,30 +30,63 @@ export default function AdminSidebar({ adminName }: AdminSidebarProps) {
     router.refresh();
   }
 
-  return (
+  const sidebarContent = (
     <aside
+      className="admin-sidebar"
       style={{
         width: "260px",
         height: "100vh",
-        position: "sticky",
-        top: 0,
         background: "#091426",
         color: "#ffffff",
         display: "flex",
         flexDirection: "column",
         flexShrink: 0,
         borderRight: "1px solid #1e293b",
-        zIndex: 50,
+        zIndex: isMobileOpen ? 100 : 50,
+        position: isMobileOpen ? "fixed" : "sticky",
+        top: 0,
+        left: isMobileOpen ? 0 : undefined,
+        boxShadow: isMobileOpen ? "4px 0 20px rgba(0,0,0,0.4)" : "none",
+        transition: "transform 0.25s ease",
       }}
     >
-      {/* Header Brand */}
-      <div style={{ padding: "1.5rem 1.5rem 1.25rem", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-        <h2 style={{ fontSize: "1.25rem", fontWeight: "700", color: "#ffffff", margin: 0, letterSpacing: "-0.01em" }}>
-          Admin Panel
-        </h2>
-        <p style={{ fontSize: "0.75rem", color: "#8590a6", margin: "0.2rem 0 0 0" }}>
-          Pariwisata Palangka Raya
-        </p>
+      {/* Header Brand + Close Button for Mobile */}
+      <div
+        style={{
+          padding: "1.25rem 1.25rem 1rem",
+          borderBottom: "1px solid rgba(255,255,255,0.08)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <div>
+          <h2 style={{ fontSize: "1.15rem", fontWeight: "700", color: "#ffffff", margin: 0, letterSpacing: "-0.01em" }}>
+            Admin Panel
+          </h2>
+          <p style={{ fontSize: "0.72rem", color: "#8590a6", margin: "0.15rem 0 0 0" }}>
+            Pariwisata Palangka Raya
+          </p>
+        </div>
+        {onCloseMobile && (
+          <button
+            onClick={onCloseMobile}
+            className="mobile-close-btn"
+            style={{
+              background: "none",
+              border: "none",
+              color: "#8590a6",
+              cursor: "pointer",
+              padding: "0.2rem",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: "22px" }}>
+              close
+            </span>
+          </button>
+        )}
       </div>
 
       {/* Navigasi Utama */}
@@ -62,6 +101,7 @@ export default function AdminSidebar({ adminName }: AdminSidebarProps) {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onCloseMobile}
               style={{
                 position: "relative",
                 display: "flex",
@@ -125,7 +165,10 @@ export default function AdminSidebar({ adminName }: AdminSidebarProps) {
         </div>
 
         <button
-          onClick={handleLogout}
+          onClick={() => {
+            if (onCloseMobile) onCloseMobile();
+            handleLogout();
+          }}
           style={{
             width: "100%",
             padding: "0.6rem 0.85rem",
@@ -150,5 +193,27 @@ export default function AdminSidebar({ adminName }: AdminSidebarProps) {
         </button>
       </div>
     </aside>
+  );
+
+  return (
+    <>
+      {/* Mobile Overlay Backdrop */}
+      {isMobileOpen && (
+        <div
+          onClick={onCloseMobile}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(9, 20, 38, 0.6)",
+            backdropFilter: "blur(2px)",
+            zIndex: 90,
+          }}
+        />
+      )}
+      {sidebarContent}
+    </>
   );
 }

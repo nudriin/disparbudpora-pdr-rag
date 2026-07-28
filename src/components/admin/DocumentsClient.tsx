@@ -680,16 +680,16 @@ export default function DocumentsClient({ initialDocuments }: Props) {
               : "Tidak ada dokumen yang cocok dengan kata kunci atau filter terpilih."}
           </div>
         ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "0.875rem", tableLayout: "fixed" }}>
+          <div style={{ overflowX: "auto", width: "100%" }}>
+            <table style={{ width: "100%", minWidth: "750px", borderCollapse: "collapse", textAlign: "left", fontSize: "0.875rem", tableLayout: "fixed" }}>
               <thead>
                 <tr style={{ background: "#f2f4f6", borderBottom: "1px solid #c5c6cd" }}>
-                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700", width: "36%" }}>Nama File</th>
+                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700", width: "30%" }}>Nama File</th>
                   <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700", width: "14%" }}>Status</th>
-                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700", width: "12%" }}>Parent / Child</th>
+                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700", width: "14%" }}>Parent / Child</th>
                   <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700", width: "10%" }}>Ukuran</th>
-                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700", width: "12%" }}>Tanggal Upload</th>
-                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700", width: "16%" }}>Aksi</th>
+                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700", width: "14%" }}>Tanggal Upload</th>
+                  <th style={{ padding: "0.75rem 1rem", color: "#45474c", fontWeight: "700", width: "18%" }}>Aksi</th>
                 </tr>
               </thead>
               <tbody>
@@ -737,10 +737,10 @@ export default function DocumentsClient({ initialDocuments }: Props) {
                           {cfg.label}
                         </span>
                       </td>
-                      <td style={{ padding: "0.85rem 1rem", color: "#45474c", fontWeight: "500" }}>
+                      <td style={{ padding: "0.85rem 1rem", color: "#45474c", fontWeight: "500", whiteSpace: "nowrap" }}>
                         {doc.parent_count} / {doc.child_count}
                       </td>
-                      <td style={{ padding: "0.85rem 1rem", color: "#45474c" }}>
+                      <td style={{ padding: "0.85rem 1rem", color: "#45474c", whiteSpace: "nowrap" }}>
                         {formatBytes(doc.file_size_bytes)}
                       </td>
                       <td style={{ padding: "0.85rem 1rem", color: "#75777d", whiteSpace: "nowrap" }}>

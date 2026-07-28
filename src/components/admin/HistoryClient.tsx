@@ -41,6 +41,8 @@ export default function HistoryClient({ initialConversations }: Props) {
   const [expandedContext, setExpandedContext] = useState<string | null>(null);
   const [expandedSourceKey, setExpandedSourceKey] = useState<string | null>(null);
 
+  const [showMobileUserList, setShowMobileUserList] = useState(false);
+
   // Load daftar user sessions
   const fetchUserSessions = useCallback(async (query = search) => {
     setLoadingUsers(true);
@@ -91,9 +93,10 @@ export default function HistoryClient({ initialConversations }: Props) {
 
   return (
     <div
+      className="history-chat-container"
       style={{
         display: "grid",
-        gridTemplateColumns: "320px 1fr",
+        gridTemplateColumns: "300px 1fr",
         gap: "1.25rem",
         height: "100%",
         minHeight: 0,
@@ -109,6 +112,7 @@ export default function HistoryClient({ initialConversations }: Props) {
       {/* SIDEBAR KIRI: Daftar Pengguna Telegram */}
       {/* ============================================================ */}
       <div
+        className={`history-user-sidebar ${!showMobileUserList && selectedChatId ? "hide-mobile" : ""}`}
         style={{
           display: "flex",
           flexDirection: "column",
@@ -182,7 +186,10 @@ export default function HistoryClient({ initialConversations }: Props) {
               return (
                 <div
                   key={u.telegram_chat_id}
-                  onClick={() => setSelectedChatId(u.telegram_chat_id)}
+                  onClick={() => {
+                    setSelectedChatId(u.telegram_chat_id);
+                    setShowMobileUserList(false);
+                  }}
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -281,7 +288,10 @@ export default function HistoryClient({ initialConversations }: Props) {
       {/* ============================================================ */}
       {/* AREA UTAMA KANAN: Ruang Obrolan Google Stitch Style */}
       {/* ============================================================ */}
-      <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, overflow: "hidden" }}>
+      <div
+        className={`history-chat-thread ${showMobileUserList ? "hide-mobile" : ""}`}
+        style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, overflow: "hidden" }}
+      >
         {activeUser ? (
           <>
             {/* Header Chat */}
@@ -297,6 +307,29 @@ export default function HistoryClient({ initialConversations }: Props) {
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <button
+                  onClick={() => setShowMobileUserList(true)}
+                  className="mobile-user-list-btn"
+                  style={{
+                    background: "#d8e2ff",
+                    border: "1px solid #adc6ff",
+                    color: "#0058be",
+                    borderRadius: "6px",
+                    padding: "0.3rem 0.55rem",
+                    fontSize: "0.75rem",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                    display: "none",
+                    alignItems: "center",
+                    gap: "0.25rem",
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
+                    arrow_back
+                  </span>
+                  Sesi Chat
+                </button>
+
                 <div
                   style={{
                     width: "38px",
@@ -371,18 +404,32 @@ export default function HistoryClient({ initialConversations }: Props) {
                         }}
                       >
                         <div style={{ whiteSpace: "pre-wrap" }}>{msg.user_message}</div>
-                        <div
-                          style={{
-                            textAlign: "right",
-                            fontSize: "0.68rem",
-                            color: "rgba(255,255,255,0.75)",
-                            marginTop: "0.35rem",
-                          }}
-                        >
-                          {new Date(msg.created_at).toLocaleTimeString("id-ID", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
+                        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "0.45rem" }}>
+                          <span
+                            style={{
+                              fontSize: "0.7rem",
+                              color: "rgba(255,255,255,0.95)",
+                              background: "rgba(255, 255, 255, 0.2)",
+                              padding: "0.15rem 0.55rem",
+                              borderRadius: "999px",
+                              fontWeight: "500",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "0.25rem",
+                            }}
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: "13px" }}>
+                              calendar_today
+                            </span>
+                            {new Date(msg.created_at).toLocaleDateString("id-ID", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })} • {new Date(msg.created_at).toLocaleTimeString("id-ID", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -403,7 +450,7 @@ export default function HistoryClient({ initialConversations }: Props) {
                             lineHeight: "1.5",
                           }}
                         >
-                          {/* Badges Status & Metrik Bot */}
+                          {/* Badges Status, Tanggal, & Metrik Bot */}
                           <div
                             style={{
                               display: "flex",
@@ -431,6 +478,34 @@ export default function HistoryClient({ initialConversations }: Props) {
                                 {msg.was_answered ? "check_circle" : "cancel"}
                               </span>
                               {msg.was_answered ? "Terjawab" : "Tidak ada informasi"}
+                            </span>
+
+                            {/* Tanggal & Waktu Chip Badge */}
+                            <span
+                              style={{
+                                fontSize: "0.7rem",
+                                color: "#45474c",
+                                background: "#f2f4f6",
+                                border: "1px solid #c5c6cd",
+                                padding: "0.2rem 0.55rem",
+                                borderRadius: "999px",
+                                fontWeight: "500",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "0.25rem",
+                              }}
+                            >
+                              <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                                calendar_today
+                              </span>
+                              {new Date(msg.created_at).toLocaleDateString("id-ID", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              })} • {new Date(msg.created_at).toLocaleTimeString("id-ID", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
                             </span>
 
                             {msg.response_time_ms && (
@@ -735,19 +810,6 @@ export default function HistoryClient({ initialConversations }: Props) {
                             </div>
                           )}
 
-                          <div
-                            style={{
-                              textAlign: "right",
-                              fontSize: "0.68rem",
-                              color: "#75777d",
-                              marginTop: "0.35rem",
-                            }}
-                          >
-                            {new Date(msg.created_at).toLocaleTimeString("id-ID", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </div>
                         </div>
                       </div>
                     )}
@@ -774,6 +836,21 @@ export default function HistoryClient({ initialConversations }: Props) {
           </div>
         )}
       </div>
+
+      <style jsx global>{`
+        @media (max-width: 767px) {
+          .history-chat-container {
+            grid-template-columns: 1fr !important;
+          }
+          .history-user-sidebar.hide-mobile,
+          .history-chat-thread.hide-mobile {
+            display: none !important;
+          }
+          .mobile-user-list-btn {
+            display: inline-flex !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

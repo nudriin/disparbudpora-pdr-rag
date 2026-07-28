@@ -116,7 +116,7 @@ export default function GeneratorSettingsClient({
   }
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "1.5rem" }}>
       {/* ==== FORM SETTINGS (Google Stitch Design) ==== */}
       <form
         onSubmit={handleSave}
@@ -144,7 +144,7 @@ export default function GeneratorSettingsClient({
         {/* Provider Radio Choice Cards */}
         <div>
           <label style={labelStyle}>Provider LLM</label>
-          <div style={{ display: "flex", gap: "0.75rem" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
             {(["gemini", "replicate"] as LLMProvider[]).map((p) => {
               const isSelected = provider === p;
               const isKeyOk = p === "gemini" ? env.geminiKeyPresent : env.replicateKeyPresent;
