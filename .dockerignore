@@ -1,0 +1,38 @@
+# Dependencies — diinstall ulang di dalam container
+node_modules
+npm-debug.log*
+
+# Build output — dihasilkan ulang saat build
+.next
+out
+
+# Environment variables — JANGAN masuk ke image!
+.env
+.env.local
+.env.*.local
+
+# Source data lokal (tidak diperlukan di production)
+src/scripts/data/
+
+# Git
+.git
+.gitignore
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test
+coverage/
+*.test.ts
+*.spec.ts
