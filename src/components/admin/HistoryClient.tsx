@@ -43,6 +43,25 @@ export default function HistoryClient({ initialConversations }: Props) {
 
   const [showMobileUserList, setShowMobileUserList] = useState(false);
 
+  // Modal State untuk Export Ragas Dataset
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportFormat, setExportFormat] = useState<"json" | "csv" | "jsonl">("json");
+  const [exportScope, setExportScope] = useState<"all" | "current">("all");
+  const [exportOnlyAnswered, setExportOnlyAnswered] = useState(false);
+
+  function handleDownloadExport() {
+    const params = new URLSearchParams();
+    params.set("format", exportFormat);
+    if (exportOnlyAnswered) params.set("only_answered", "true");
+    if (exportScope === "current" && selectedChatId) {
+      params.set("chat_id", String(selectedChatId));
+    }
+
+    const url = `/api/admin/history/export?${params.toString()}`;
+    window.open(url, "_blank");
+    setShowExportModal(false);
+  }
+
   // Load daftar user sessions
   const fetchUserSessions = useCallback(async (query = search) => {
     setLoadingUsers(true);
@@ -123,6 +142,34 @@ export default function HistoryClient({ initialConversations }: Props) {
           overflow: "hidden",
         }}
       >
+        {/* Tombol Export Ragas Dataset */}
+        <button
+          onClick={() => setShowExportModal(true)}
+          style={{
+            width: "100%",
+            padding: "0.65rem 0.85rem",
+            background: "#A1EBB4",
+            color: "#0D381B",
+            border: "none",
+            borderRadius: "14px",
+            fontSize: "0.85rem",
+            fontWeight: "800",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.4rem",
+            marginBottom: "0.85rem",
+            boxShadow: "0 4px 15px rgba(161, 235, 180, 0.25)",
+            transition: "all 0.18s ease",
+          }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+            download
+          </span>
+          Export Ragas Dataset
+        </button>
+
         {/* Search Input dengan Material Icon */}
         <div style={{ position: "relative", marginBottom: "1rem" }}>
           <span
@@ -466,7 +513,7 @@ export default function HistoryClient({ initialConversations }: Props) {
                                 fontWeight: "700",
                                 padding: "0.2rem 0.55rem",
                                 borderRadius: "999px",
-                                background: msg.was_answered ? "rgba(39, 103, 73, 0.15)" : "rgba(186, 26, 26, 0.15)",
+                                background: msg.was_answered ? "rgba(39, 66, 103, 0.40)" : "rgba(186, 26, 26, 0.15)",
                                 color: msg.was_answered ? "#A1EBB4" : "#FFB4A2",
                                 border: msg.was_answered ? "1px solid #2E6B45" : "1px solid #FFB4A2",
                                 display: "inline-flex",
@@ -529,7 +576,7 @@ export default function HistoryClient({ initialConversations }: Props) {
                               </span>
                             )}
 
-                            {msg.model_used && (
+                            {/* {msg.model_used && (
                               <span
                                 style={{
                                   fontSize: "0.7rem",
@@ -547,7 +594,7 @@ export default function HistoryClient({ initialConversations }: Props) {
                                 </span>
                                 {msg.model_used}
                               </span>
-                            )}
+                            )} */}
                           </div>
 
                           {/* Teks Jawaban Bot */}
@@ -836,6 +883,183 @@ export default function HistoryClient({ initialConversations }: Props) {
           </div>
         )}
       </div>
+
+      {/* Modal Popup Export Dataset Ragas */}
+      {showExportModal && (
+        <div
+          onClick={() => setShowExportModal(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(18, 19, 22, 0.65)",
+            backdropFilter: "blur(4px)",
+            zIndex: 200,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "1rem",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "var(--bg-surface)",
+              borderRadius: "24px",
+              padding: "1.75rem",
+              maxWidth: "480px",
+              width: "100%",
+              border: "1px solid var(--border-color)",
+              boxShadow: "0 10px 40px rgba(0,0,0,0.25)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1.25rem",
+              color: "var(--text-primary)",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <span className="material-symbols-outlined" style={{ fontSize: "24px", color: "#A1EBB4" }}>
+                  analytics
+                </span>
+                <h2 style={{ fontSize: "1.15rem", fontWeight: "800", margin: 0 }}>
+                  Export Dataset Ragas
+                </h2>
+              </div>
+              <button
+                onClick={() => setShowExportModal(false)}
+                style={{ background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer" }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: "22px" }}>
+                  close
+                </span>
+              </button>
+            </div>
+
+            <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", margin: 0, lineHeight: 1.45 }}>
+              Format dataset ini dirancang khusus untuk evaluasi RAG (Faithfulness, Answer Relevance, Context Recall & Precision) menggunakan framework <strong>Ragas & Pandas</strong>.
+            </p>
+
+            {/* Pilihan Scope */}
+            <div>
+              <label style={{ fontSize: "0.85rem", fontWeight: "700", display: "block", marginBottom: "0.4rem" }}>
+                Lingkup Data Percakapan
+              </label>
+              <div style={{ display: "flex", gap: "0.5rem", flexDirection: "column" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", cursor: "pointer" }}>
+                  <input
+                    type="radio"
+                    name="scope"
+                    checked={exportScope === "all"}
+                    onChange={() => setExportScope("all")}
+                  />
+                  Seluruh Percakapan (Semua Pengguna)
+                </label>
+                {selectedChatId && (
+                  <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", cursor: "pointer" }}>
+                    <input
+                      type="radio"
+                      name="scope"
+                      checked={exportScope === "current"}
+                      onChange={() => setExportScope("current")}
+                    />
+                    Hanya Sesi User Terpilih (ID: {selectedChatId})
+                  </label>
+                )}
+              </div>
+            </div>
+
+            {/* Pilihan Format File */}
+            <div>
+              <label style={{ fontSize: "0.85rem", fontWeight: "700", display: "block", marginBottom: "0.4rem" }}>
+                Format File Export
+              </label>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.5rem" }}>
+                {[
+                  { id: "json", label: "JSON (.json)", desc: "Ragas Standard" },
+                  { id: "csv", label: "CSV (.csv)", desc: "Pandas/Excel" },
+                  { id: "jsonl", label: "JSONL (.jsonl)", desc: "Hugging Face" },
+                ].map((f) => {
+                  const isSel = exportFormat === f.id;
+                  return (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => setExportFormat(f.id as any)}
+                      style={{
+                        padding: "0.6rem 0.4rem",
+                        borderRadius: "12px",
+                        border: isSel ? "2px solid var(--mint-text)" : "1px solid var(--border-color)",
+                        background: isSel ? "var(--mint-accent)" : "var(--input-bg)",
+                        color: isSel ? "var(--mint-text)" : "var(--text-primary)",
+                        cursor: "pointer",
+                        fontSize: "0.78rem",
+                        fontWeight: "700",
+                        textAlign: "center",
+                      }}
+                    >
+                      <div>{f.label}</div>
+                      <div style={{ fontSize: "0.65rem", opacity: 0.8, fontWeight: "500" }}>{f.desc}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Filter Checkbox */}
+            <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.825rem", color: "var(--text-primary)", cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={exportOnlyAnswered}
+                onChange={(e) => setExportOnlyAnswered(e.target.checked)}
+              />
+              Hanya export percakapan yang TERJAWAB (was_answered = true)
+            </label>
+
+            {/* Tombol Aksi Download */}
+            <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
+              <button
+                onClick={() => setShowExportModal(false)}
+                style={{
+                  flex: 1,
+                  padding: "0.75rem",
+                  background: "var(--input-bg)",
+                  color: "var(--text-primary)",
+                  border: "1px solid var(--border-color)",
+                  borderRadius: "999px",
+                  fontSize: "0.85rem",
+                  fontWeight: "700",
+                  cursor: "pointer",
+                }}
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleDownloadExport}
+                style={{
+                  flex: 1.5,
+                  padding: "0.75rem",
+                  background: "#A1EBB4",
+                  color: "#0D381B",
+                  border: "none",
+                  borderRadius: "999px",
+                  fontSize: "0.85rem",
+                  fontWeight: "800",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.35rem",
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+                  download
+                </span>
+                Unduh {exportFormat.toUpperCase()}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style jsx global>{`
         @media (max-width: 767px) {

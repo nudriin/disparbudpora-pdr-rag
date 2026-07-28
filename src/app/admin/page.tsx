@@ -135,14 +135,167 @@ export default async function AdminDashboard() {
   return (
     <AuthedLayout>
       <div style={{ display: "flex", flexDirection: "column", gap: "1.75rem" }}>
-        {/* Header Section */}
-        <div>
-          <h1 style={{ fontSize: "1.85rem", fontWeight: "800", color: "var(--text-primary)", margin: 0, letterSpacing: "-0.02em" }}>
-            Dashboard
-          </h1>
-          <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", marginTop: "0.25rem" }}>
-            Ringkasan performa & statistik kecerdasan buatan pariwisata Palangka Raya
-          </p>
+        {/* Hero Header Banner (Bundaran Palangka Raya) */}
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            minHeight: "220px",
+            borderRadius: "24px",
+            overflow: "hidden",
+            boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
+            padding: "1.75rem 2rem",
+            boxSizing: "border-box",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+          }}
+        >
+          {/* Layer 1: Background Image dengan Filter Blur & Darkened Brightness */}
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundImage: `url("/images/bundaran_palangka_raya.jpeg")`,
+              backgroundSize: "cover",
+              backgroundPosition: "center 40%",
+              filter: "blur(2px) brightness(0.80)",
+              transform: "scale(1.05)",
+              zIndex: 0,
+            }}
+          />
+
+          {/* Layer 2: Overlay Hitam Transparan untuk Kontras & Legibilitas Teks */}
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "linear-gradient(135deg, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.45) 50%, rgba(0, 0, 0, 0.75) 100%)",
+              zIndex: 1,
+            }}
+          />
+
+          {/* Layer 3: Konten Utama Hero Header (Z-Index 2 agar Teks Tajam & Sangat Mudah Dibaca) */}
+          <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", justifyContent: "space-between", gap: "1rem" }}>
+            {/* Top Badge Tag */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem" }}>
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.35rem",
+                  background: "rgba(255, 255, 255, 0.18)",
+                  backdropFilter: "blur(12px)",
+                  color: "#ffffff",
+                  padding: "0.35rem 0.85rem",
+                  borderRadius: "999px",
+                  fontSize: "0.78rem",
+                  fontWeight: "700",
+                  border: "1px solid rgba(255, 255, 255, 0.25)",
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: "16px", color: "#A1EBB4" }}>
+                  location_on
+                </span>
+                Palangka Raya, Kalimantan Tengah
+              </span>
+
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.35rem",
+                  background: "rgba(161, 235, 180, 0.25)",
+                  backdropFilter: "blur(12px)",
+                  color: "#A1EBB4",
+                  padding: "0.35rem 0.85rem",
+                  borderRadius: "999px",
+                  fontSize: "0.75rem",
+                  fontWeight: "800",
+                  border: "1px solid rgba(161, 235, 180, 0.4)",
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                  travel_explore
+                </span>
+                Pariwisata Hub Live
+              </span>
+            </div>
+
+            {/* Main Title & Description */}
+            <div>
+              <h1
+                style={{
+                  fontSize: "2.35rem",
+                  fontWeight: "800",
+                  color: "#ffffff",
+                  margin: 0,
+                  letterSpacing: "-0.02em",
+                  textShadow: "0 2px 10px rgba(0,0,0,0.5)",
+                }}
+              >
+                Palangka Raya
+              </h1>
+              <p
+                style={{
+                  color: "rgba(255, 255, 255, 0.92)",
+                  fontSize: "0.925rem",
+                  marginTop: "0.35rem",
+                  marginBottom: 0,
+                  maxWidth: "640px",
+                  lineHeight: 1.45,
+                  textShadow: "0 1px 6px rgba(0,0,0,0.5)",
+                }}
+              >
+                Pusat Data Kecerdasan Pariwisata Kota Cantik & Layanan Chatbot Telegram Berbasis Parent Document Retrieval (PDR)
+              </p>
+            </div>
+
+            {/* Quick Info Chips */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.6rem",
+                flexWrap: "wrap",
+                marginTop: "0.5rem",
+              }}
+            >
+              {[
+                { label: "Bundaran Besar", icon: "photo_camera" },
+                { label: "Vector Search Active", icon: "database" },
+                { label: "Telegram Bot Online", icon: "smart_toy" },
+              ].map((chip, idx) => (
+                <span
+                  key={idx}
+                  style={{
+                    background: "rgba(0, 0, 0, 0.45)",
+                    backdropFilter: "blur(8px)",
+                    color: "rgba(255, 255, 255, 0.95)",
+                    padding: "0.3rem 0.75rem",
+                    borderRadius: "999px",
+                    fontSize: "0.75rem",
+                    fontWeight: "600",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.3rem",
+                    border: "1px solid rgba(255, 255, 255, 0.2)",
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: "14px", color: "#B5B4FF" }}>
+                    {chip.icon}
+                  </span>
+                  {chip.label}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* 5 Stat Cards Grid (Neo-Minimalist Bento Design) */}

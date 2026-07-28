@@ -67,9 +67,9 @@ export default function AuthedClientLayout({ adminDisplayName, children }: Props
             </button>
 
             <h1 style={{ fontSize: "1.15rem", fontWeight: "700", color: "var(--text-primary)", margin: 0, letterSpacing: "-0.01em" }}>
-              Tourism Intelligence
+              Disparbudpora AI
             </h1>
-            <span
+            {/* <span
               style={{
                 fontSize: "0.65rem",
                 fontWeight: "700",
@@ -82,7 +82,7 @@ export default function AuthedClientLayout({ adminDisplayName, children }: Props
               }}
             >
               Beta
-            </span>
+            </span> */}
           </div>
 
           {/* Right: User Status, Theme Switcher & Icons */}
