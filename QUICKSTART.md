@@ -78,9 +78,36 @@ Output yang benar:
 ✓ Ready in 2.3s
 ```
 
+### Terminal 3 — Telegram Bot (LONG POLLING MODE)
+
+> ⚠️ **PENTING:** Untuk development LOKAL, Telegram BISA mengirim update ke localhost hanya
+> kalau kita pakai **LONG POLLING** (bukan Webhook). Webhook hanya bisa untuk URL HTTPS publik.
+> Gunakan Terminal 3 ini untuk mode dev lokal.
+
+```powershell
+# Pastikan ChromaDB (Terminal 1) & Next.js (Terminal 2) sudah jalan.
+# Lalu jalankan bot polling:
+npm run bot
+```
+
+Output yang benar:
+```
+✅ Webhook lama sudah dibersihkan (jika ada).
+
+🤖 Telegram Bot (LONG POLLING MODE)
+   ===================================
+   Provider LLM  : baca dari Supabase app_settings
+   ChromaDB URL  : http://[::1]:8000
+   Bot token     : 123456:...ABCD
+
+⏳ Menunggu pesan Telegram... (Ctrl+C untuk berhenti)
+```
+
+**Setelah bot online, kirim `/start` ke bot Telegrammu — pasti ada balasan! 🎉**
+
 ## Upload Dokumen Pertama Kali
 
-**Buka terminal ke-3** (ChromaDB dan Next.js tetap berjalan):
+**Buka terminal ke-4** (ChromaDB, Next.js, dan Bot polling tetap berjalan):
 
 ```powershell
 # Taruh file .txt dokumen pariwisata ke:

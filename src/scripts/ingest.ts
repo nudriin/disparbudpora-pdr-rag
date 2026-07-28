@@ -24,12 +24,14 @@ import * as path from "path";
 import * as crypto from "crypto";
 import * as dotenv from "dotenv";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
-import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
+import type { EmbeddingsInterface } from "@langchain/core/embeddings";
 import { createClient } from "@supabase/supabase-js";
 // Node.js 20 tidak punya native WebSocket — inject 'ws' untuk Supabase Realtime
 import ws from "ws";
 import { getChromaClient, getOrCreateCollection, resetCollection, CHROMA_COLLECTION_NAME } from "../retrieval/chroma";
 import { parseFileContent } from "../utils/fileParser";
+import { getEmbeddingModel, type EmbeddingConfig, DEFAULT_EMBEDDING_CONFIG } from "../retrieval/embedding";
+import { getEmbeddingConfig } from "../config/settings";
 
 // Muat environment variables dari .env.local
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
@@ -49,13 +51,15 @@ const EMBEDDING_BATCH_SIZE = 20;
 // ARGUMEN CLI
 // ============================================================
 const RESET_MODE = process.argv.includes("--reset");
+const CLI_EMBEDDING_PROVIDER =
+  (process.env.EMBEDDING_PROVIDER as EmbeddingConfig["provider"] | undefined) ?? undefined;
+const CLI_EMBEDDING_MODEL = process.env.EMBEDDING_MODEL ?? undefined;
 
 // ============================================================
 // VALIDASI ENV
 // ============================================================
 function validateEnv() {
   const required = {
-    GOOGLE_API_KEY: process.env.GOOGLE_API_KEY,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     CHROMA_URL: process.env.CHROMA_URL,
@@ -66,14 +70,28 @@ function validateEnv() {
   }
 
   return {
-    googleApiKey: required.GOOGLE_API_KEY!,
     supabaseUrl: required.NEXT_PUBLIC_SUPABASE_URL!,
     supabaseServiceKey: required.SUPABASE_SERVICE_ROLE_KEY!,
   };
 }
 
+function getAllFilesRecursively(dirPath: string, arrayOfFiles: string[] = []): string[] {
+  const files = fs.readdirSync(dirPath);
+
+  for (const file of files) {
+    const fullPath = path.join(dirPath, file);
+    if (fs.statSync(fullPath).isDirectory()) {
+      arrayOfFiles = getAllFilesRecursively(fullPath, arrayOfFiles);
+    } else {
+      arrayOfFiles.push(fullPath);
+    }
+  }
+
+  return arrayOfFiles;
+}
+
 // ============================================================
-// HELPER: Baca semua file dari direktori data
+// HELPER: Baca semua file dari direktori data (rekursif)
 // ============================================================
 async function loadDocumentsFromDirectory() {
   if (!fs.existsSync(DATA_DIR)) {
@@ -84,20 +102,20 @@ async function loadDocumentsFromDirectory() {
   }
 
   const allowedExts = [".txt", ".pdf", ".xlsx", ".csv"];
-  const files = fs.readdirSync(DATA_DIR).filter((f) => 
-    allowedExts.some(ext => f.toLowerCase().endsWith(ext))
+  const allFilePaths = getAllFilesRecursively(DATA_DIR).filter((filePath) =>
+    allowedExts.some((ext) => filePath.toLowerCase().endsWith(ext))
   );
-  
-  if (files.length === 0) throw new Error(`❌ Tidak ada file dokumen di: ${DATA_DIR}`);
 
-  console.log(`📂 Menemukan ${files.length} file dokumen:`);
-  
+  if (allFilePaths.length === 0) throw new Error(`❌ Tidak ada file dokumen di: ${DATA_DIR}`);
+
+  console.log(`📂 Menemukan ${allFilePaths.length} file dokumen (rekursif):`);
+
   const documents = [];
-  for (const fileName of files) {
-    const filePath = path.join(DATA_DIR, fileName);
+  for (const filePath of allFilePaths) {
+    const fileName = path.basename(filePath);
     const buffer = fs.readFileSync(filePath);
     const sizeBytes = fs.statSync(filePath).size;
-    
+
     try {
       const content = (await parseFileContent(buffer, fileName)).trim();
       const hash = crypto.createHash("md5").update(content).digest("hex");
@@ -107,7 +125,7 @@ async function loadDocumentsFromDirectory() {
       console.error(`   ❌ Gagal mem-parsing ${fileName}: ${(err as Error).message}`);
     }
   }
-  
+
   return documents;
 }
 
@@ -116,7 +134,7 @@ async function loadDocumentsFromDirectory() {
 // ============================================================
 async function embedInBatches(
   texts: string[],
-  embeddingModel: GoogleGenerativeAIEmbeddings
+  embeddingModel: EmbeddingsInterface
 ): Promise<number[][]> {
   const allVectors: number[][] = [];
 
@@ -132,13 +150,13 @@ async function embedInBatches(
     if (failed !== -1) {
       throw new Error(
         `Embedding gagal pada chunk indeks ${i + failed}. ` +
-        `Periksa GOOGLE_API_KEY dan quota API.`
+        `Periksa provider dan setting embedding.`
       );
     }
 
     allVectors.push(...vectors);
 
-    // Jeda 1 detik antar batch untuk hindari rate limit
+    // Jeda 1 detik antar batch untuk hindari rate limit (untuk provider remote)
     if (i + EMBEDDING_BATCH_SIZE < texts.length) {
       await new Promise((r) => setTimeout(r, 1000));
     }
@@ -157,7 +175,7 @@ async function main() {
   console.log("=".repeat(60));
 
   // 1. Validasi env
-  const { googleApiKey, supabaseUrl, supabaseServiceKey } = validateEnv();
+  const { supabaseUrl, supabaseServiceKey } = validateEnv();
   console.log("✅ Environment variables valid.");
 
   // 2. Inisialisasi klien
@@ -167,15 +185,14 @@ async function main() {
     realtime: { transport: ws as any },
   });
 
-  const embeddingModel = new GoogleGenerativeAIEmbeddings({
-    apiKey: googleApiKey,
-    model: "gemini-embedding-001",
-  });
+  const embeddingConfig = await getEmbeddingConfig();
+  console.log(`🧠 Memuat Embedding Model: ${embeddingConfig.provider} | ${embeddingConfig.model} (dim=${embeddingConfig.dimensions})`);
+  const embeddingModel = getEmbeddingModel(embeddingConfig);
 
   // 3. Test koneksi embedding
-  console.log("🔌 Menguji Google Embedding API...");
+  console.log("🔌 Menguji Embedding API...");
   const testVec = await embeddingModel.embedQuery("tes");
-  if (!testVec?.length) throw new Error("Embedding API gagal — cek GOOGLE_API_KEY");
+  if (!testVec?.length) throw new Error("Embedding API gagal — periksa konfigurasi provider");
   const embeddingDim = testVec.length;
   console.log(`✅ Embedding API OK (dimensi: ${embeddingDim})`);
 

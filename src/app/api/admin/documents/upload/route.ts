@@ -3,9 +3,10 @@ import * as crypto from "crypto";
 import { getSupabaseAdmin } from "@/lib/supabase/client";
 import { getSession } from "@/lib/auth/session";
 import { getOrCreateCollection, CHROMA_COLLECTION_NAME } from "@/retrieval/chroma";
-import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { parseFileContent } from "@/utils/fileParser";
+import { getEmbeddingConfig } from "@/config/settings";
+import { getEmbeddingModel } from "@/retrieval/embedding";
 
 const PARENT_CHUNK_SIZE = 1500;
 const PARENT_CHUNK_OVERLAP = 100;
@@ -26,10 +27,11 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = getSupabaseAdmin();
-    const embeddingModel = new GoogleGenerativeAIEmbeddings({
-      apiKey: process.env.GOOGLE_API_KEY!,
-      model: "gemini-embedding-001",
-    });
+
+    // ✅ GUNAKAN EMBEDDING SESUAI SETTING ADMIN (google / transformers.js)
+    const embeddingConfig = await getEmbeddingConfig();
+    const embeddingModel = getEmbeddingModel(embeddingConfig);
+
     const collection = await getOrCreateCollection();
 
     const parentSplitter = new RecursiveCharacterTextSplitter({

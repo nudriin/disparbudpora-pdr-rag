@@ -31,41 +31,70 @@ export class ReplicateGenerator implements LLMGenerator {
   }
 
   /**
-   * Replicate umumnya tidak memisahkan system vs human message
-   * seperti LangChain, jadi kita gabungkan menjadi satu prompt
-   * standar chat-style yang diterima mayoritas model LLaMA/Mixtral.
+   * Menggabungkan system + human prompt menjadi format yang kompatibel
+   * dengan mayoritas model chat LLM di Replicate (LLaMA 3, Mixtral, dst).
+   *
+   * BUG FIX PENTING:
+   *  1. Placeholder {context} ada di SYSTEM PROMPT (bukan human template),
+   *     jadi kita harus replace variables di KEDUA string, bukan cuma di human.
+   *  2. Jangan pakai tag custom seperti <|begin_of_solution|>. Gunakan format
+   *     Llama Chat yang standar agar model tidak menuliskan tag tersebut
+   *     kembali ke jawaban pengguna.
    */
   async runPrompt(
     systemPrompt: string,
     humanTemplate: string,
     variables: Record<string, string>
   ): Promise<string> {
-    // Isi placeholders pada human template
-    let humanPrompt = humanTemplate;
-    for (const [k, v] of Object.entries(variables)) {
-      humanPrompt = humanPrompt.replaceAll(`{${k}}`, v);
+    // ============================================================
+    // 1. ISI SEMUA PLACEHOLDER (context DAN question)
+    //    — BUG UTAMA SEBELUMNYA: replace hanya dilakukan di humanTemplate,
+    //      padahal {context} ada di systemPrompt!
+    // ============================================================
+    function fillPlaceholders(tmpl: string): string {
+      let result = tmpl;
+      for (const [k, v] of Object.entries(variables)) {
+        result = result.replaceAll(`{${k}}`, v);
+      }
+      return result;
     }
 
-    // Format system + user prompt menjadi format yang kompatibel
-    // dengan model chat Replicate (mirip LlamaChat template)
-    const formattedPrompt =
-      `<|begin_of_solution|>\n` +
-      `<|begin_of_thought|>\n` +
-      `System instructions:\n${systemPrompt}\n\n` +
-      `<|end_of_thought|>\n` +
-      `<|begin_of_solution|>\n` +
-      `User question:\n${humanPrompt}\n\n` +
-      `Assistant answer:\n`;
+    const filledSystem = fillPlaceholders(systemPrompt);
+    const filledHuman = fillPlaceholders(humanTemplate);
 
-    const output = await this.client.run(this.model as `${string}/${string}:${string}`, {
-      input: {
-        prompt: formattedPrompt,
-        temperature: this.temperature,
-        max_new_tokens: this.maxOutputTokens,
-        top_p: 0.95,
-        prompt_template: "{prompt}", // Kita sudah format sendiri
-      },
-    });
+    // ============================================================
+    // 2. FORMAT STANDAR LLAMA CHAT TEMPLATE
+    //    Format ini dikenali native oleh LLaMA 3, LLaMA 3.1, Mixtral,
+    //    dan mayoritas model instruct di Replicate.
+    //    Reference: https://llama.meta.com/docs/model-cards-and-prompt-formats/meta-llama-3/
+    // ============================================================
+    const BOS = "<|begin_of_text|>";
+    const SYS_START = "<|start_header_id|>system<|end_header_id|>\n\n";
+    const SYS_END = "<|eot_id|>";
+    const USR_START = "<|start_header_id|>user<|end_header_id|>\n\n";
+    const USR_END = "<|eot_id|>";
+    const AST_START = "<|start_header_id|>assistant<|end_header_id|>\n\n";
+
+    const formattedPrompt =
+      BOS +
+      SYS_START + filledSystem + SYS_END +
+      USR_START + filledHuman + USR_END +
+      AST_START;
+
+    const output = await this.client.run(
+      this.model as `${string}/${string}:${string}`,
+      {
+        input: {
+          prompt: formattedPrompt,
+          temperature: this.temperature,
+          max_new_tokens: this.maxOutputTokens,
+          top_p: 0.95,
+          // prompt_template = "{prompt}" artinya model tidak memformat ulang
+          // lagi (kita sudah format dengan Llama Chat template di atas)
+          prompt_template: "{prompt}",
+        },
+      }
+    );
 
     // Replicate bisa mengembalikan string atau array token
     if (Array.isArray(output)) {

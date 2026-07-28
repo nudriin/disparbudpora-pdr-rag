@@ -103,7 +103,7 @@ export default function GeneratorSettingsClient({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          config: { provider, model, temperature, maxOutputTokens },
+          generator: { provider, model, temperature, maxOutputTokens },
           question: testQuestion,
         }),
       });

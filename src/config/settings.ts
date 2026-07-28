@@ -1,8 +1,11 @@
 import { getSupabaseAdmin } from "../lib/supabase/client";
 import type { GeneratorConfig, LLMProvider } from "../generation/types";
 import { DEFAULT_GENERATOR_CONFIG } from "../generation/generator";
+import type { EmbeddingConfig, EmbeddingProvider } from "../retrieval/embedding";
+import { DEFAULT_EMBEDDING_CONFIG } from "../retrieval/embedding";
 
 export const APP_SETTING_KEY_GENERATOR = "generator.config";
+export const APP_SETTING_KEY_EMBEDDING = "embedding.config";
 
 /**
  * Membaca setting generator dari tabel `app_settings` Supabase.
@@ -69,5 +72,67 @@ export async function saveGeneratorConfig(
 
   if (error) {
     throw new Error(`Failed to save generator config: ${error.message}`);
+  }
+}
+
+// ============================================================
+// EMBEDDING SETTINGS
+// ============================================================
+
+/**
+ * Membaca setting embedding dari tabel `app_settings`.
+ * Jika kosong/gagal parsing → return DEFAULT_EMBEDDING_CONFIG (Transformers.js Lokal Gratis).
+ */
+export async function getEmbeddingConfig(): Promise<EmbeddingConfig> {
+  try {
+    const supabase = getSupabaseAdmin();
+    const { data, error } = await supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", APP_SETTING_KEY_EMBEDDING)
+      .maybeSingle();
+
+    if (error || !data || !data.value) {
+      return DEFAULT_EMBEDDING_CONFIG;
+    }
+
+    const val = data.value as Record<string, unknown>;
+    const provider = (val.provider as EmbeddingProvider | undefined) ?? DEFAULT_EMBEDDING_CONFIG.provider;
+    const model = (val.model as string | undefined) ?? DEFAULT_EMBEDDING_CONFIG.model;
+    const dimensions =
+      typeof val.dimensions === "number" ? val.dimensions : DEFAULT_EMBEDDING_CONFIG.dimensions;
+
+    if (provider !== "google" && provider !== "transformers") {
+      return DEFAULT_EMBEDDING_CONFIG;
+    }
+    if (typeof model !== "string" || model.trim().length === 0) {
+      return DEFAULT_EMBEDDING_CONFIG;
+    }
+    return { provider, model, dimensions };
+  } catch (err) {
+    console.error("[getEmbeddingConfig] Failed to read setting from DB, using default:", err);
+    return DEFAULT_EMBEDDING_CONFIG;
+  }
+}
+
+export async function saveEmbeddingConfig(
+  config: EmbeddingConfig,
+  updatedByAdminId?: string
+): Promise<void> {
+  const supabase = getSupabaseAdmin();
+
+  const payload: Record<string, unknown> = {
+    key: APP_SETTING_KEY_EMBEDDING,
+    value: config as unknown as Record<string, unknown>,
+  };
+  if (updatedByAdminId) {
+    payload.updated_by = updatedByAdminId;
+  }
+
+  const { error } = await supabase.from("app_settings").upsert(payload, {
+    onConflict: "key",
+  });
+  if (error) {
+    throw new Error(`Failed to save embedding config: ${error.message}`);
   }
 }

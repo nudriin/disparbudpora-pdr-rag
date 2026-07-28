@@ -1,6 +1,6 @@
-import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { IncludeEnum } from "chromadb";
 import { getOrCreateCollection } from "./chroma";
+import { getEmbeddingModel, type EmbeddingConfig } from "./embedding";
 
 export interface RetrievalResult {
   parentContent: string;
@@ -13,7 +13,7 @@ export interface RetrievalResult {
  * Retriever berbasis Parent Document Retrieval.
  *
  * Alur kerja:
- * 1. Embed query pengguna menggunakan Google Embedding
+ * 1. Embed query pengguna (menggunakan provider sesuai admin setting: Google / Transformers.js)
  * 2. Cari child chunks yang paling mirip di ChromaDB
  * 3. Untuk setiap child yang ditemukan, ambil parent_content dari metadata
  * 4. De-duplikasi parent berdasarkan parent_id
@@ -24,18 +24,24 @@ export async function retrieveParentDocuments(
   options: {
     nResults?: number;
     minSimilarity?: number;
-  } = {}
+    embeddingConfig: EmbeddingConfig;
+  }
 ): Promise<RetrievalResult[]> {
-  const { nResults = 5, minSimilarity = 0.4 } = options;
+  const { nResults = 5, minSimilarity = 0.4, embeddingConfig } = options;
+  const t0 = Date.now();
 
-  // 1. Embed query
-  const embeddingModel = new GoogleGenerativeAIEmbeddings({
-    apiKey: process.env.GOOGLE_API_KEY!,
-    model: "gemini-embedding-001",
-  });
+  // 1. Embed query (pakai factory + singleton dari src/retrieval/embedding.ts)
+  const tEmbed0 = Date.now();
+  const embeddingModel = getEmbeddingModel(embeddingConfig);
   const queryVector = await embeddingModel.embedQuery(query);
+  const tEmbed1 = Date.now();
+  console.debug(
+    `      [retrieval] embed query: ${tEmbed1 - tEmbed0}ms` +
+    ` (provider=${embeddingConfig.provider}, dimensi=${queryVector.length})`
+  );
 
   // 2. Cari child chunks di ChromaDB
+  const tQuery0 = Date.now();
   const collection = await getOrCreateCollection();
   const results = await collection.query({
     queryEmbeddings: [queryVector],
@@ -46,8 +52,14 @@ export async function retrieveParentDocuments(
       IncludeEnum.Distances,
     ],
   });
+  const tQuery1 = Date.now();
+  console.debug(
+    `      [retrieval] chroma query: ${tQuery1 - tQuery0}ms` +
+    ` (ketemu ${results.ids[0]?.length ?? 0} child chunks)`
+  );
 
   if (!results.ids[0] || results.ids[0].length === 0) {
+    console.debug(`      [retrieval] TOTAL ${Date.now() - t0}ms. Hasil: KOSONG.`);
     return [];
   }
 
@@ -76,5 +88,11 @@ export async function retrieveParentDocuments(
     });
   }
 
-  return parentResults.sort((a, b) => b.similarity - a.similarity);
+  const finalResults = parentResults.sort((a, b) => b.similarity - a.similarity);
+  console.debug(
+    `      [retrieval] TOTAL ${Date.now() - t0}ms.` +
+    ` Parent unik: ${finalResults.length} (dari ${results.ids[0].length} child).`
+  );
+
+  return finalResults;
 }

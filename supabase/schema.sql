@@ -123,6 +123,12 @@ CREATE TABLE IF NOT EXISTS conversation_history (
   was_answered    BOOLEAN DEFAULT true,
   -- Waktu respon dalam milidetik
   response_time_ms INTEGER,
+  -- Provider LLM yang digunakan (gemini / replicate)
+  provider_used   TEXT,
+  -- Nama model LLM yang dipakai (e.g. gemini-2.5-flash, meta/llama-3:ver, dst)
+  model_used      TEXT,
+  -- Apakah reply TERKIRIM ke Telegram (false = error parse markdown dsb)
+  reply_sent      BOOLEAN DEFAULT true,
   created_at      TIMESTAMPTZ DEFAULT NOW()
 );
 
