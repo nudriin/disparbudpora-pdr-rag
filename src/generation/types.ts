@@ -31,6 +31,19 @@ export interface GeneratorConfig {
   maxOutputTokens: number;
 }
 
+/**
+ * Konfigurasi retrieval — terpisah dari generator dan embedding.
+ * Mengontrol perilaku pencarian konteks di ChromaDB.
+ */
+export interface RetrievalConfig {
+  /** Aktifkan HyDE (Hypothetical Document Embeddings) */
+  useHyde: boolean;
+  /** Jumlah kandidat child chunks yang diambil dari ChromaDB */
+  nResults: number;
+  /** Ambang batas minimum similarity score (0-1) */
+  minSimilarity: number;
+}
+
 export interface GenerationResult {
   answer: string;
   wasAnswered: boolean;

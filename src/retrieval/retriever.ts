@@ -1,6 +1,32 @@
 import { IncludeEnum } from "chromadb";
 import { getOrCreateCollection } from "./chroma";
 import { getEmbeddingModel, type EmbeddingConfig } from "./embedding";
+import type { GeneratorConfig } from "../generation/types";
+import { createLLMGenerator } from "../generation/generator";
+
+// ============================================================
+// HyDE: Hypothetical Document Embeddings
+// Menghasilkan hipotesis dokumen dari query untuk meningkatkan
+// akurasi similarity search di domain spesifik (pariwisata).
+// ============================================================
+const HYDE_SYSTEM_PROMPT = `Kamu adalah penulis artikel pariwisata Kota Palangka Raya.
+Diberikan sebuah pertanyaan wisatawan, tuliskan SATU paragraf pendek (3-4 kalimat) yang merupakan
+hipotesis jawaban informatif seolah-olah ditemukan dari sebuah artikel atau brosur pariwisata.
+Jangan gunakan kata-kata seperti "Berdasarkan pertanyaan..." atau "Saya tidak tahu...".
+Langsung tulis isi jawabannya seolah-olah kamu sedang menulis artikel informasi.`;
+
+async function generateHypotheticalDocument(
+  query: string,
+  config: GeneratorConfig
+): Promise<string> {
+  const llm = createLLMGenerator(config);
+  const hypothesis = await llm.runPrompt(
+    HYDE_SYSTEM_PROMPT,
+    `Pertanyaan: {question}`,
+    { question: query }
+  );
+  return hypothesis.trim();
+}
 
 export interface RetrievalResult {
   parentContent: string;
@@ -27,19 +53,37 @@ export async function retrieveParentDocuments(
     nResults?: number;
     minSimilarity?: number;
     embeddingConfig: EmbeddingConfig;
+    useHyde?: boolean;
+    hydeConfig?: GeneratorConfig;
   }
 ): Promise<RetrievalResult[]> {
-  const { nResults = 5, minSimilarity = 0.4, embeddingConfig } = options;
+  const { nResults = 10, minSimilarity = 0.2, embeddingConfig, useHyde = false, hydeConfig } = options;
   const t0 = Date.now();
 
   // 1. Embed query (pakai factory + singleton dari src/retrieval/embedding.ts)
+  //    Jika HyDE aktif, generate hipotesis dokumen terlebih dahulu lalu embed itu
   const tEmbed0 = Date.now();
   const embeddingModel = getEmbeddingModel(embeddingConfig);
-  const queryVector = await embeddingModel.embedQuery(query);
+
+  let queryVector: number[];
+  if (useHyde && hydeConfig) {
+    try {
+      const hypothetical = await generateHypotheticalDocument(query, hydeConfig);
+      console.debug(`      [retrieval/HyDE] Hipotesis: "${hypothetical.slice(0, 80)}..."`);
+      queryVector = await embeddingModel.embedQuery(hypothetical);
+      console.debug(`      [retrieval/HyDE] Embed hipotesis selesai`);
+    } catch (hydeErr) {
+      console.warn(`      [retrieval/HyDE] Gagal generate hipotesis, fallback ke query asli:`, hydeErr);
+      queryVector = await embeddingModel.embedQuery(query);
+    }
+  } else {
+    queryVector = await embeddingModel.embedQuery(query);
+  }
+
   const tEmbed1 = Date.now();
   console.debug(
     `      [retrieval] embed query: ${tEmbed1 - tEmbed0}ms` +
-    ` (provider=${embeddingConfig.provider}, dimensi=${queryVector.length})`
+    ` (provider=${embeddingConfig.provider}, dimensi=${queryVector.length}, HyDE=${useHyde})`
   );
 
   // 2. Cari child chunks di ChromaDB
@@ -65,7 +109,13 @@ export async function retrieveParentDocuments(
     return [];
   }
 
-  // 3. De-duplikasi berdasarkan parent_id
+  // 3. Log skor similarity SEBELUM filter (untuk diagnostik threshold)
+  const rawScores = results.distances?.[0]?.map((d) => +(1 - d / 2).toFixed(3)) ?? [];
+  console.debug(
+    `      [retrieval] similarity scores (sebelum filter min=${minSimilarity}): [${rawScores.join(", ")}]`
+  );
+
+  // 4. De-duplikasi berdasarkan parent_id
   const seenParentIds = new Set<string>();
   const parentResults: RetrievalResult[] = [];
 
@@ -95,7 +145,7 @@ export async function retrieveParentDocuments(
   const finalResults = parentResults.sort((a, b) => b.similarity - a.similarity);
   console.debug(
     `      [retrieval] TOTAL ${Date.now() - t0}ms.` +
-    ` Parent unik: ${finalResults.length} (dari ${results.ids[0].length} child).`
+    ` Parent unik: ${finalResults.length} (dari ${results.ids[0].length} child, threshold=${minSimilarity}).`
   );
 
   return finalResults;

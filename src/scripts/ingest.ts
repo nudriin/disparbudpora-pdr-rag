@@ -43,8 +43,8 @@ const DATA_DIR = path.resolve(__dirname, "data");
 
 const PARENT_CHUNK_SIZE = 1500;   // karakter
 const PARENT_CHUNK_OVERLAP = 100;
-const CHILD_CHUNK_SIZE = 400;     // karakter
-const CHILD_CHUNK_OVERLAP = 50;
+const CHILD_CHUNK_SIZE = 600;     // karakter (naik dari 400 → embedding lebih representatif)
+const CHILD_CHUNK_OVERLAP = 80;
 const EMBEDDING_BATCH_SIZE = 20;
 
 // ============================================================

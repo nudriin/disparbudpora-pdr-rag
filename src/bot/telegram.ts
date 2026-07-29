@@ -3,7 +3,7 @@ import { message } from "telegraf/filters";
 import { retrieveParentDocuments } from "../retrieval/retriever";
 import { generateAnswer, reformulateQuery } from "../generation/generator";
 import { getSupabaseAdmin } from "../lib/supabase/client";
-import { getGeneratorConfig, getEmbeddingConfig } from "../config/settings";
+import { getGeneratorConfig, getEmbeddingConfig, getRetrievalConfig } from "../config/settings";
 import { getRecentChatHistory, formatChatHistory } from "../lib/supabase/historyHelper";
 import { POPULAR_SUGGESTIONS, getFollowUpSuggestions } from "./suggestions";
 
@@ -63,13 +63,15 @@ async function processQuestion(
   }, 5000);
 
   try {
-    // 0a. Baca konfigurasi generator & embedding dari DB
+    // 0a. Baca konfigurasi generator, embedding & retrieval dari DB
     const generatorConfig = await getGeneratorConfig();
     const embeddingConfig = await getEmbeddingConfig();
+    const retrievalConfig = await getRetrievalConfig();
     providerUsed = generatorConfig.provider;
     modelUsed = generatorConfig.model;
     console.log(`   ⚙️  Provider LLM: ${providerUsed} | Model: ${modelUsed}`);
     console.log(`   🧬 Embedding   : ${embeddingConfig.provider} | ${embeddingConfig.model} (dim=${embeddingConfig.dimensions})`);
+    console.log(`   🔍 Retrieval   : HyDE=${retrievalConfig.useHyde}, nResults=${retrievalConfig.nResults}, minSim=${retrievalConfig.minSimilarity}`);
 
     // 0b. Ambil 5 riwayat percakapan terakhir dari Supabase
     const rawHistory = await getRecentChatHistory(chatId, 5);
@@ -87,13 +89,15 @@ async function processQuestion(
       }
     }
 
-    // 1. Retrieval di ChromaDB
-    console.log(`   🔎 Retrieval dimuat (${searchQuery === userMessage ? "kueri asli" : "kueri reformulasi"})...`);
+    // 1. Retrieval di ChromaDB (HyDE dikontrol dari pengaturan admin)
+    console.log(`   🔎 Retrieval dimuat (${searchQuery === userMessage ? "kueri asli" : "kueri reformulasi"}, HyDE=${retrievalConfig.useHyde})...`);
     const results = await Promise.race([
       retrieveParentDocuments(searchQuery, {
-        nResults: 5,
-        minSimilarity: 0.4,
+        nResults: retrievalConfig.nResults,
+        minSimilarity: retrievalConfig.minSimilarity,
         embeddingConfig,
+        useHyde: retrievalConfig.useHyde,
+        hydeConfig: generatorConfig,
       }),
       new Promise<never>((_, rej) =>
         setTimeout(

@@ -1,14 +1,16 @@
 import AuthedLayout from "@/components/admin/AuthedLayout";
 import GeneratorSettingsClient from "@/components/admin/GeneratorSettingsClient";
 import EmbeddingSettingsClient from "@/components/admin/EmbeddingSettingsClient";
-import { getGeneratorConfig, getEmbeddingConfig } from "@/config/settings";
+import RetrievalSettingsClient from "@/components/admin/RetrievalSettingsClient";
+import { getGeneratorConfig, getEmbeddingConfig, getRetrievalConfig } from "@/config/settings";
 import type { GeneratorConfig } from "@/generation/types";
 import type { EmbeddingConfig } from "@/retrieval/embedding";
 
 export default async function SettingsPage() {
-  const [generatorConfig, embeddingConfig] = await Promise.all([
+  const [generatorConfig, embeddingConfig, retrievalConfig] = await Promise.all([
     getGeneratorConfig() as Promise<GeneratorConfig>,
     getEmbeddingConfig() as Promise<EmbeddingConfig>,
+    getRetrievalConfig(),
   ]);
 
   const env = {
@@ -34,10 +36,10 @@ export default async function SettingsPage() {
             <span className="material-symbols-outlined" style={{ fontSize: "28px", color: "var(--text-primary)" }}>
               settings
             </span>
-            Pengaturan AI Chatbot (LLM & Embedding)
+            Pengaturan AI Chatbot (LLM, Embedding & Retrieval)
           </h1>
           <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", marginTop: "0.25rem" }}>
-            Kelola provider LLM (Generator Jawaban) dan Embedding Model (Vector Retrieval) untuk chatbot.
+            Kelola provider LLM (Generator Jawaban), Embedding Model (Vector Retrieval), dan Strategi Retrieval chatbot.
           </p>
         </div>
 
@@ -49,6 +51,9 @@ export default async function SettingsPage() {
             hasReplicateKey: env.replicateKeyPresent,
           }}
         />
+
+        {/* Section Retrieval Settings (HyDE, nResults, minSimilarity) */}
+        <RetrievalSettingsClient initialConfig={retrievalConfig} />
 
         {/* Section Generator Settings & Test RAG */}
         <GeneratorSettingsClient initialConfig={generatorConfig} env={env} />

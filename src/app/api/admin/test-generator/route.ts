@@ -2,20 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { retrieveParentDocuments } from "@/retrieval/retriever";
 import { generateAnswer } from "@/generation/generator";
-import { getGeneratorConfig, saveGeneratorConfig, getEmbeddingConfig, saveEmbeddingConfig } from "@/config/settings";
+import { getGeneratorConfig, saveGeneratorConfig, getEmbeddingConfig, saveEmbeddingConfig, getRetrievalConfig, saveRetrievalConfig } from "@/config/settings";
 import type { GeneratorConfig } from "@/generation/types";
+import type { RetrievalConfig } from "@/generation/types";
 import { GEMINI_MODEL_PRESETS, REPLICATE_MODEL_PRESETS } from "@/generation/types";
 import { EMBEDDING_PRESET_OPTIONS, resetEmbeddingCache, type EmbeddingConfig } from "@/retrieval/embedding";
 
 export async function GET() {
   try {
-    const [generator, embedding] = await Promise.all([
+    const [generator, embedding, retrieval] = await Promise.all([
       getGeneratorConfig(),
       getEmbeddingConfig(),
+      getRetrievalConfig(),
     ]);
     return NextResponse.json({
       generator,
       embedding,
+      retrieval,
       presetOptions: {
         geminiModels: GEMINI_MODEL_PRESETS,
         replicateModels: REPLICATE_MODEL_PRESETS,
@@ -43,6 +46,7 @@ export async function POST(request: NextRequest) {
       generator?: GeneratorConfig;
       config?: GeneratorConfig;
       embedding?: EmbeddingConfig;
+      retrieval?: RetrievalConfig;
       question?: string;
       saveSettings?: boolean;
     };
@@ -60,22 +64,28 @@ export async function POST(request: NextRequest) {
     // Ambil embedding config dari body atau fallback ke setting aktif di DB
     const embeddingConfig = body.embedding ?? (await getEmbeddingConfig());
 
+    // Ambil retrieval config dari body atau fallback ke setting aktif di DB
+    const retrievalConfig = body.retrieval ?? (await getRetrievalConfig());
+
     // Simpan setting jika diminta admin
     if (body.saveSettings) {
       await Promise.all([
         saveGeneratorConfig(generatorConfig, session.id),
         saveEmbeddingConfig(embeddingConfig, session.id),
+        saveRetrievalConfig(retrievalConfig, session.id),
       ]);
       resetEmbeddingCache();
     }
 
     const tStart = Date.now();
 
-    // 1. Retrieval — pakai embedding config terpilih/fallback DB
+    // 1. Retrieval — pakai retrieval config dari body atau DB (dengan HyDE)
     const results = await retrieveParentDocuments(question, {
-      nResults: 5,
-      minSimilarity: 0.4,
+      nResults: retrievalConfig.nResults,
+      minSimilarity: retrievalConfig.minSimilarity,
       embeddingConfig,
+      useHyde: retrievalConfig.useHyde,
+      hydeConfig: generatorConfig,
     });
 
     // 2. Generation — pakai generator config terpilih

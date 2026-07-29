@@ -35,8 +35,6 @@ export async function getOrCreateCollection(): Promise<Collection> {
     name: CHROMA_COLLECTION_NAME,
     metadata: {
       description: "Child chunks untuk pariwisata Palangka Raya",
-      embedding_model: "gemini-embedding-001",
-      embedding_dim: "3072",
       "hnsw:space": "cosine", // Gunakan Cosine Similarity
     },
   });
