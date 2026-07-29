@@ -95,13 +95,20 @@ export async function deleteChunksBySource(fileName: string): Promise<number> {
  *
  * @param fileName - Nama file yang akan diambil chunk-nya
  */
-export async function getChunksBySource(fileName: string) {
+export async function getChunksBySource(fileName: string, sourceId?: string) {
   const collection = await getOrCreateCollection();
 
-  const results = await collection.get({
+  let results = await collection.get({
     where: { source: fileName },
     include: [IncludeEnum.Documents, IncludeEnum.Metadatas],
   });
+
+  if ((!results.ids || results.ids.length === 0) && sourceId) {
+    results = await collection.get({
+      where: { source_id: sourceId },
+      include: [IncludeEnum.Documents, IncludeEnum.Metadatas],
+    });
+  }
 
   return results;
 }

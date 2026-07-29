@@ -27,7 +27,7 @@ export async function GET(
   }
 
   try {
-    const chunks = await getChunksBySource(doc.file_name);
+    const chunks = await getChunksBySource(doc.file_name, id);
     return NextResponse.json({ ok: true, chunks });
   } catch (err) {
     return NextResponse.json({ error: (err as Error).message }, { status: 500 });
