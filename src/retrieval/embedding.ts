@@ -76,33 +76,67 @@ export class ReplicateEmbeddings extends Embeddings implements ReplicateEmbeddin
       let output: any;
       try {
         output = await this.client.run(this.model as `${string}/${string}:${string}`, {
-          input: { text: text },
+          input: {
+            text: text,
+            output_format: "array",
+            normalize: true,
+          },
         });
       } catch (err: any) {
         if (err?.status === 422 || err?.message?.includes("invalid input")) {
           output = await this.client.run(this.model as `${string}/${string}:${string}`, {
-            input: { prompt: text },
+            input: {
+              prompt: text,
+              output_format: "array",
+              normalize: true,
+            },
           });
         } else {
           throw err;
         }
       }
 
+      // Jika Replicate mengembalikan array angka langsung
       if (Array.isArray(output)) {
         return output as number[];
       }
+
+      // Jika Replicate mengembalikan string base64
+      if (typeof output === "string") {
+        const buffer = Buffer.from(output, "base64");
+        const float32Array = new Float32Array(
+          buffer.buffer,
+          buffer.byteOffset,
+          buffer.byteLength / Float32Array.BYTES_PER_ELEMENT
+        );
+        return Array.from(float32Array);
+      }
+
+      // Jika Replicate mengembalikan objek bersarang
       if (typeof output === "object" && output !== null) {
-        if ("embedding" in output && Array.isArray(output.embedding)) {
-          return output.embedding as number[];
+        if ("embedding" in output) {
+          if (Array.isArray(output.embedding)) return output.embedding as number[];
+          if (typeof output.embedding === "string") {
+            const buf = Buffer.from(output.embedding, "base64");
+            return Array.from(new Float32Array(buf.buffer, buf.byteOffset, buf.byteLength / 4));
+          }
         }
-        if ("vector" in output && Array.isArray(output.vector)) {
-          return output.vector as number[];
+        if ("vector" in output) {
+          if (Array.isArray(output.vector)) return output.vector as number[];
+          if (typeof output.vector === "string") {
+            const buf = Buffer.from(output.vector, "base64");
+            return Array.from(new Float32Array(buf.buffer, buf.byteOffset, buf.byteLength / 4));
+          }
         }
-        if ("output" in output && Array.isArray(output.output)) {
-          return output.output as number[];
+        if ("output" in output) {
+          if (Array.isArray(output.output)) return output.output as number[];
+          if (typeof output.output === "string") {
+            const buf = Buffer.from(output.output, "base64");
+            return Array.from(new Float32Array(buf.buffer, buf.byteOffset, buf.byteLength / 4));
+          }
         }
       }
-      throw new Error(`Output dari Replicate model ${this.model} tidak berformat array vektor.`);
+      throw new Error(`Output dari Replicate model ${this.model} tidak berformat array vektor: ${JSON.stringify(output)}`);
     } catch (err) {
       console.error(`[ReplicateEmbeddings] Error generating embedding:`, err);
       throw err;
