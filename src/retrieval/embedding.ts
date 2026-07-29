@@ -44,7 +44,7 @@ export class ReplicateEmbeddings extends Embeddings implements ReplicateEmbeddin
 
   constructor(fields?: ReplicateEmbeddingsParams) {
     super(fields ?? {});
-    this.model = fields?.model ?? "zsxkib/embedding-gemma-300m";
+    this.model = fields?.model ?? "zsxkib/embedding-gemma-300m:d753bd5a898a96666f233f9a33ab1c3fe6527a7be308e1cc9fdcda46abf3e233";
     this.apiKey = fields?.apiKey ?? process.env.REPLICATE_API_TOKEN;
 
     if (!this.apiKey) {
@@ -99,27 +99,27 @@ export const EMBEDDING_PRESET_OPTIONS: Array<{
   label: string;
   value: EmbeddingConfig;
 }> = [
-  {
-    label: "🟣 Replicate Cloud — zsxkib/embedding-gemma-300m (768-dim, Cepat & Tanpa Quota Google)",
-    value: { provider: "replicate", model: "zsxkib/embedding-gemma-300m", dimensions: 768 },
-  },
-  {
-    label: "🟢 Transformers.js (GRATIS, Lokal) — multilingual-e5-small (384-dim)",
-    value: { provider: "transformers", model: "Xenova/multilingual-e5-small", dimensions: 384 },
-  },
-  {
-    label: "🟢 Transformers.js (GRATIS, Lokal) — all-MiniLM-L6-v2 (384-dim)",
-    value: { provider: "transformers", model: "Xenova/all-MiniLM-L6-v2", dimensions: 384 },
-  },
-  {
-    label: "🔵 Google AI Studio — gemini-embedding-001 (3072-dim)",
-    value: { provider: "google", model: "gemini-embedding-001", dimensions: 3072 },
-  },
-  {
-    label: "🔵 Google AI Studio — text-embedding-004 (768-dim)",
-    value: { provider: "google", model: "text-embedding-004", dimensions: 768 },
-  },
-];
+    {
+      label: "🟣 Replicate Cloud — zsxkib/embedding-gemma-300m (768-dim, Cepat & Tanpa Quota Google)",
+      value: { provider: "replicate", model: "zsxkib/embedding-gemma-300m", dimensions: 768 },
+    },
+    {
+      label: "🟢 Transformers.js (GRATIS, Lokal) — multilingual-e5-small (384-dim)",
+      value: { provider: "transformers", model: "Xenova/multilingual-e5-small", dimensions: 384 },
+    },
+    {
+      label: "🟢 Transformers.js (GRATIS, Lokal) — all-MiniLM-L6-v2 (384-dim)",
+      value: { provider: "transformers", model: "Xenova/all-MiniLM-L6-v2", dimensions: 384 },
+    },
+    {
+      label: "🔵 Google AI Studio — gemini-embedding-001 (3072-dim)",
+      value: { provider: "google", model: "gemini-embedding-001", dimensions: 3072 },
+    },
+    {
+      label: "🔵 Google AI Studio — text-embedding-004 (768-dim)",
+      value: { provider: "google", model: "text-embedding-004", dimensions: 768 },
+    },
+  ];
 
 // Singleton cache instance
 let _cachedEmbeddings: EmbeddingsInterface | null = null;
