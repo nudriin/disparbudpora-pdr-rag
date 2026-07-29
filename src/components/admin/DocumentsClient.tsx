@@ -48,6 +48,48 @@ export default function DocumentsClient({ initialDocuments }: Props) {
   const [filterStatus, setFilterStatus] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
 
+  // Custom Neo-Minimalist Modal State
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    type: "info" | "success" | "warning" | "danger" | "confirm";
+    title: string;
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    onConfirm?: () => void;
+  }>({
+    isOpen: false,
+    type: "info",
+    title: "",
+    message: "",
+  });
+
+  function showNotify(title: string, message: string, type: "info" | "success" | "warning" | "danger" = "info") {
+    setModalConfig({
+      isOpen: true,
+      type,
+      title,
+      message,
+      confirmText: "Tutup",
+      onConfirm: () => setModalConfig((prev) => ({ ...prev, isOpen: false })),
+    });
+  }
+
+  function showConfirm(title: string, message: string, onConfirm: () => void, type: "warning" | "danger" = "warning") {
+    setModalConfig({
+      isOpen: true,
+      type: "confirm",
+      title,
+      message,
+      confirmText: "Ya, Lanjutkan",
+      cancelText: "Batal",
+      onConfirm: () => {
+        setModalConfig((prev) => ({ ...prev, isOpen: false }));
+        onConfirm();
+      },
+    });
+  }
+
   // Agregasi Statistik
   const totalParentCount = documents.reduce((sum, d) => sum + (d.parent_count || 0), 0);
   const totalChildCount = documents.reduce((sum, d) => sum + (d.child_count || 0), 0);
@@ -113,47 +155,54 @@ export default function DocumentsClient({ initialDocuments }: Props) {
     }
   }, [selectedFiles]);
 
-  async function handleDelete(docId: string, fileName: string) {
-    if (!confirm(`Hapus dokumen "${fileName}"? Semua chunk-nya di ChromaDB akan dihapus.`)) return;
-
-    setDeletingId(docId);
-    try {
-      const res = await fetch(`/api/admin/documents/${docId}`, { method: "DELETE" });
-      const data = await res.json();
-      if (!res.ok) {
-        alert(data.error ?? "Hapus gagal.");
-        return;
-      }
-      setDocuments((prev) => prev.filter((d) => d.id !== docId));
-    } catch {
-      alert("Terjadi kesalahan jaringan.");
-    } finally {
-      setDeletingId(null);
-    }
+  function handleDelete(docId: string, fileName: string) {
+    showConfirm(
+      "Hapus Dokumen",
+      `Apakah Anda yakin ingin menghapus "${fileName}"?\n\nSemua data parent & child chunk dokumen ini di ChromaDB dan Supabase akan dihapus permanen.`,
+      async () => {
+        setDeletingId(docId);
+        try {
+          const res = await fetch(`/api/admin/documents/${docId}`, { method: "DELETE" });
+          const data = await res.json();
+          if (!res.ok) {
+            showNotify("Hapus Gagal", data.error ?? "Gagal menghapus dokumen.", "danger");
+            return;
+          }
+          setDocuments((prev) => prev.filter((d) => d.id !== docId));
+          showNotify("Dokumen Dihapus", `Dokumen "${fileName}" berhasil dihapus.`, "success");
+        } catch {
+          showNotify("Kesalahan Jaringan", "Tidak dapat terhubung ke server. Coba lagi.", "danger");
+        } finally {
+          setDeletingId(null);
+        }
+      },
+      "danger"
+    );
   }
 
-  async function handleResetVector() {
-    if (!confirm(
-      "PERINGATAN: Reset Vector akan menghapus SEMUA data embedding di ChromaDB.\n\n" +
-      "Kamu perlu menjalankan ulang proses ingest setelah reset.\n\n" +
-      "Lanjutkan?"
-    )) return;
-
-    setResetting(true);
-    try {
-      const res = await fetch("/api/admin/documents/reset-vector", { method: "POST" });
-      const data = await res.json();
-      if (!res.ok) {
-        alert(data.error ?? "Reset gagal.");
-        return;
-      }
-      alert("Vector store berhasil direset. Jalankan ulang ingest untuk mengisi kembali.");
-      await refreshDocuments();
-    } catch {
-      alert("Terjadi kesalahan jaringan.");
-    } finally {
-      setResetting(false);
-    }
+  function handleResetVector() {
+    showConfirm(
+      "Reset Vector Database",
+      "PERINGATAN: Tindakan ini akan MENGHAPUS SEMUA DATA VEKTOR di ChromaDB!\n\nStatus seluruh dokumen di Supabase akan di-reset menjadi pending. Anda perlu menjalankan ulang ingest setelah reset.\n\nApakah Anda yakin ingin melanjutkan?",
+      async () => {
+        setResetting(true);
+        try {
+          const res = await fetch("/api/admin/documents/reset-vector", { method: "POST" });
+          const data = await res.json();
+          if (!res.ok) {
+            showNotify("Reset Vector Gagal", data.error ?? "Gagal melakukan reset vector.", "danger");
+            return;
+          }
+          showNotify("Reset Vector Sukses", "Koleksi ChromaDB berhasil direset 100%. Jalankan ulang ingest untuk mengisi data vektor baru.", "success");
+          await refreshDocuments();
+        } catch {
+          showNotify("Kesalahan Jaringan", "Tidak dapat terhubung ke server. Coba lagi.", "danger");
+        } finally {
+          setResetting(false);
+        }
+      },
+      "danger"
+    );
   }
 
   async function handleView(docId: string, fileName: string) {
@@ -166,10 +215,10 @@ export default function DocumentsClient({ initialDocuments }: Props) {
       if (res.ok) {
         setChunksData(data.chunks);
       } else {
-        alert(data.error ?? "Gagal mengambil data chunk.");
+        showNotify("Gagal Memuat Chunk", data.error ?? "Gagal mengambil data chunk dokumen.", "danger");
       }
     } catch {
-      alert("Terjadi kesalahan jaringan.");
+      showNotify("Kesalahan Jaringan", "Tidak dapat terhubung ke server. Coba lagi.", "danger");
     } finally {
       setLoadingChunks(false);
     }
@@ -919,8 +968,153 @@ export default function DocumentsClient({ initialDocuments }: Props) {
                   })}
                 </div>
               ) : (
-                <div style={{ textAlign: "center", color: "#75777d", padding: "2rem 0" }}>Tidak ada chunk ditemukan untuk dokumen ini.</div>
+                <div style={{ textAlign: "center", color: "#75777d", padding: "2rem 0" }}>
+                  Tidak ada chunk ditemukan untuk dokumen ini.
+                </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* CUSTOM NEO-MINIMALIST POPUP MODAL */}
+      {/* ============================================================ */}
+      {modalConfig.isOpen && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            background: "rgba(0, 0, 0, 0.65)",
+            backdropFilter: "blur(8px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "1.5rem",
+          }}
+          onClick={() => setModalConfig((prev) => ({ ...prev, isOpen: false }))}
+        >
+          <div
+            style={{
+              position: "relative",
+              background: "var(--bg-surface)",
+              color: "var(--text-primary)",
+              borderRadius: "26px",
+              padding: "2rem",
+              maxWidth: "440px",
+              width: "100%",
+              border: "1px solid var(--border-color)",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.3)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1.25rem",
+              overflow: "hidden",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Dashed Corner Circle Accent */}
+            <div style={{ position: "absolute", top: "-22px", right: "-22px", width: "70px", height: "70px", borderRadius: "50%", border: "1.5px dashed var(--border-color)", pointerEvents: "none" }} />
+
+            {/* Header Badge */}
+            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: "16px", color: "#2E6B45" }}>
+                asterisk
+              </span>
+              <span
+                style={{
+                  fontSize: "0.75rem",
+                  fontWeight: "800",
+                  color: "var(--text-secondary)",
+                  background: "var(--input-bg)",
+                  padding: "0.25rem 0.65rem",
+                  borderRadius: "999px",
+                  border: "1px dashed var(--border-color)",
+                }}
+              >
+                Disparbudpora AI Notification
+              </span>
+            </div>
+
+            {/* Modal Content */}
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "0.85rem" }}>
+              <div
+                style={{
+                  width: "44px",
+                  height: "44px",
+                  borderRadius: "14px",
+                  background:
+                    modalConfig.type === "danger"
+                      ? "rgba(186, 26, 26, 0.15)"
+                      : modalConfig.type === "success"
+                      ? "rgba(161, 235, 180, 0.25)"
+                      : "var(--input-bg)",
+                  color:
+                    modalConfig.type === "danger"
+                      ? "#FFB4A2"
+                      : modalConfig.type === "success"
+                      ? "#A1EBB4"
+                      : "var(--text-primary)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: "24px" }}>
+                  {modalConfig.type === "danger"
+                    ? "warning"
+                    : modalConfig.type === "success"
+                    ? "check_circle"
+                    : "info"}
+                </span>
+              </div>
+              <div>
+                <h3 style={{ fontSize: "1.15rem", fontWeight: "800", margin: "0 0 0.35rem 0", color: "var(--text-primary)" }}>
+                  {modalConfig.title}
+                </h3>
+                <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", margin: 0, lineHeight: 1.5, whiteSpace: "pre-wrap" }}>
+                  {modalConfig.message}
+                </p>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", marginTop: "0.5rem" }}>
+              {modalConfig.cancelText && (
+                <button
+                  onClick={() => setModalConfig((prev) => ({ ...prev, isOpen: false }))}
+                  style={{
+                    padding: "0.6rem 1.2rem",
+                    borderRadius: "999px",
+                    background: "var(--input-bg)",
+                    border: "1px solid var(--border-color)",
+                    color: "var(--text-primary)",
+                    fontWeight: "700",
+                    fontSize: "0.85rem",
+                    cursor: "pointer",
+                  }}
+                >
+                  {modalConfig.cancelText}
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  modalConfig.onConfirm?.();
+                }}
+                style={{
+                  padding: "0.6rem 1.4rem",
+                  borderRadius: "999px",
+                  background: modalConfig.type === "danger" ? "#FFB4A2" : "#A1EBB4",
+                  color: modalConfig.type === "danger" ? "#690005" : "#0D381B",
+                  border: "none",
+                  fontWeight: "800",
+                  fontSize: "0.85rem",
+                  cursor: "pointer",
+                }}
+              >
+                {modalConfig.confirmText || "OK"}
+              </button>
             </div>
           </div>
         </div>

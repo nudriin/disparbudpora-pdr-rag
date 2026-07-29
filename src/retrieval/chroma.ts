@@ -53,16 +53,14 @@ export async function resetCollection(): Promise<void> {
 
   try {
     await client.deleteCollection({ name: CHROMA_COLLECTION_NAME });
-  } catch {
-    // Koleksi belum ada, tidak masalah
+  } catch (err) {
+    console.log("[ChromaDB] Collection delete notice:", (err as Error).message);
   }
 
-  await client.createCollection({
+  await client.getOrCreateCollection({
     name: CHROMA_COLLECTION_NAME,
     metadata: {
       description: "Child chunks untuk pariwisata Palangka Raya",
-      embedding_model: "gemini-embedding-001",
-      embedding_dim: "3072",
       "hnsw:space": "cosine",
     },
   });

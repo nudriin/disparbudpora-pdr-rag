@@ -42,6 +42,7 @@ export default function HistoryClient({ initialConversations }: Props) {
   const [expandedSourceKey, setExpandedSourceKey] = useState<string | null>(null);
 
   const [showMobileUserList, setShowMobileUserList] = useState(false);
+  const [copiedContextId, setCopiedContextId] = useState<string | null>(null);
 
   // Modal State untuk Export Ragas Dataset
   const [showExportModal, setShowExportModal] = useState(false);
@@ -793,16 +794,17 @@ export default function HistoryClient({ initialConversations }: Props) {
                                                     onClick={(e) => {
                                                       e.stopPropagation();
                                                       navigator.clipboard.writeText(fullText);
-                                                      alert("Teks konteks berhasil disalin!");
+                                                      setCopiedContextId(cardKey);
+                                                      setTimeout(() => setCopiedContextId(null), 2000);
                                                     }}
                                                     style={{
-                                                      background: "#d8e2ff",
-                                                      border: "1px solid #adc6ff",
-                                                      color: "#0058be",
-                                                      borderRadius: "6px",
-                                                      padding: "0.25rem 0.55rem",
+                                                      background: copiedContextId === cardKey ? "#A1EBB4" : "var(--input-bg)",
+                                                      border: "1px solid var(--border-color)",
+                                                      color: copiedContextId === cardKey ? "#0D381B" : "var(--text-primary)",
+                                                      borderRadius: "999px",
+                                                      padding: "0.25rem 0.65rem",
                                                       fontSize: "0.72rem",
-                                                      fontWeight: "600",
+                                                      fontWeight: "700",
                                                       cursor: "pointer",
                                                       display: "inline-flex",
                                                       alignItems: "center",
@@ -810,9 +812,9 @@ export default function HistoryClient({ initialConversations }: Props) {
                                                     }}
                                                   >
                                                     <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
-                                                      content_copy
+                                                      {copiedContextId === cardKey ? "check" : "content_copy"}
                                                     </span>
-                                                    Salin Teks
+                                                    {copiedContextId === cardKey ? "Tersalin!" : "Salin Teks"}
                                                   </button>
                                                 </div>
                                                 <div
