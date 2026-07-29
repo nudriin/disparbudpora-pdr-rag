@@ -35,6 +35,7 @@ export default function DocumentsClient({ initialDocuments }: Props) {
   const [uploading, setUploading] = useState(false);
   const [uploadMsg, setUploadMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [resetting, setResetting] = useState(false);
+  const [resettingAll, setResettingAll] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [viewingDoc, setViewingDoc] = useState<{ id: string; fileName: string } | null>(null);
   const [chunksData, setChunksData] = useState<any>(null);
@@ -199,6 +200,31 @@ export default function DocumentsClient({ initialDocuments }: Props) {
           showNotify("Kesalahan Jaringan", "Tidak dapat terhubung ke server. Coba lagi.", "danger");
         } finally {
           setResetting(false);
+        }
+      },
+      "danger"
+    );
+  }
+
+  function handleResetAll() {
+    showConfirm(
+      "Reset Dokumen & Vector Total",
+      "PERINGATAN SANGAT PENTING:\n\nTindakan ini akan MENGHAPUS TOTAL SELURUH DOKUMEN di database Supabase dan SELURUH VEKTOR di ChromaDB!\n\nDaftar dokumen akan menjadi KOSONG (0 dokumen).\n\nApakah Anda yakin mau menghapus total semua dokumen?",
+      async () => {
+        setResettingAll(true);
+        try {
+          const res = await fetch("/api/admin/documents/reset-all", { method: "POST" });
+          const data = await res.json();
+          if (!res.ok) {
+            showNotify("Reset Dokumen Gagal", data.error ?? "Gagal mereset total dokumen.", "danger");
+            return;
+          }
+          showNotify("Reset Total Sukses", "Seluruh dokumen dan data vektor ChromaDB berhasil dihapus total.", "success");
+          await refreshDocuments();
+        } catch {
+          showNotify("Kesalahan Jaringan", "Tidak dapat terhubung ke server. Coba lagi.", "danger");
+        } finally {
+          setResettingAll(false);
         }
       },
       "danger"
@@ -622,28 +648,53 @@ export default function DocumentsClient({ initialDocuments }: Props) {
               Daftar Dokumen Basis Pengetahuan ({filteredDocuments.length} dari {documents.length})
             </h2>
           </div>
-          <button
-            onClick={handleResetVector}
-            disabled={resetting}
-            style={{
-              padding: "0.5rem 1rem",
-              background: resetting ? "var(--text-secondary)" : "#FFB4A2",
-              color: "#690005",
-              border: "none",
-              borderRadius: "999px",
-              fontSize: "0.85rem",
-              fontWeight: "700",
-              cursor: resetting ? "not-allowed" : "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.35rem",
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
-              delete_sweep
-            </span>
-            {resetting ? "Mereset Vector..." : "Reset Semua Vector"}
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+            <button
+              onClick={handleResetVector}
+              disabled={resetting || resettingAll}
+              style={{
+                padding: "0.5rem 1rem",
+                background: resetting ? "var(--text-secondary)" : "#FFB4A2",
+                color: "#690005",
+                border: "none",
+                borderRadius: "999px",
+                fontSize: "0.85rem",
+                fontWeight: "700",
+                cursor: resetting || resettingAll ? "not-allowed" : "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.35rem",
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+                restart_alt
+              </span>
+              {resetting ? "Mereset Vector..." : "Reset Vector"}
+            </button>
+
+            <button
+              onClick={handleResetAll}
+              disabled={resetting || resettingAll}
+              style={{
+                padding: "0.5rem 1rem",
+                background: resettingAll ? "var(--text-secondary)" : "#ba1a1a",
+                color: "white",
+                border: "none",
+                borderRadius: "999px",
+                fontSize: "0.85rem",
+                fontWeight: "700",
+                cursor: resetting || resettingAll ? "not-allowed" : "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.35rem",
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+                delete_sweep
+              </span>
+              {resettingAll ? "Mereset Dokumen..." : "Reset Total Dokumen"}
+            </button>
+          </div>
         </div>
 
         {/* Header Baris 2: Search Input, Status Filter, & Sorting */}
