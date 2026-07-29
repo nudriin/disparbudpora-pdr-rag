@@ -44,7 +44,10 @@ export default async function SettingsPage() {
         {/* Section Embedding Settings */}
         <EmbeddingSettingsClient
           initialConfig={embeddingConfig}
-          env={{ hasGoogleApiKey: env.geminiKeyPresent }}
+          env={{
+            hasGoogleApiKey: env.geminiKeyPresent,
+            hasReplicateKey: env.replicateKeyPresent,
+          }}
         />
 
         {/* Section Generator Settings & Test RAG */}

@@ -102,7 +102,7 @@ export async function getEmbeddingConfig(): Promise<EmbeddingConfig> {
     const dimensions =
       typeof val.dimensions === "number" ? val.dimensions : DEFAULT_EMBEDDING_CONFIG.dimensions;
 
-    if (provider !== "google" && provider !== "transformers") {
+    if (provider !== "google" && provider !== "transformers" && provider !== "replicate") {
       return DEFAULT_EMBEDDING_CONFIG;
     }
     if (typeof model !== "string" || model.trim().length === 0) {

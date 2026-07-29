@@ -8,6 +8,7 @@ interface EmbeddingSettingsProps {
   initialConfig: EmbeddingConfig;
   env: {
     hasGoogleApiKey: boolean;
+    hasReplicateKey?: boolean;
   };
 }
 
@@ -169,15 +170,18 @@ export default function EmbeddingSettingsClient({
       <div>
         <label style={labelStyle}>Provider Embedding</label>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
-          {(["transformers", "google"] as EmbeddingProvider[]).map((p) => {
+          {(["replicate", "transformers", "google"] as EmbeddingProvider[]).map((p) => {
             const isSelected = provider === p;
-            const isOk = p === "transformers" || env.hasGoogleApiKey;
+            const isOk =
+              p === "transformers" ||
+              (p === "google" && env.hasGoogleApiKey) ||
+              (p === "replicate" && env.hasReplicateKey);
 
             return (
               <label
                 key={p}
                 style={{
-                  flex: 1,
+                  flex: "1 1 180px",
                   display: "flex",
                   alignItems: "center",
                   gap: "0.65rem",
@@ -198,7 +202,11 @@ export default function EmbeddingSettingsClient({
                 />
                 <div>
                   <div style={{ fontWeight: "800", fontSize: "0.875rem" }}>
-                    {p === "transformers" ? "Transformers.js (Lokal)" : "Google AI Studio"}
+                    {p === "replicate"
+                      ? "Replicate Cloud API"
+                      : p === "transformers"
+                      ? "Transformers.js (Lokal)"
+                      : "Google AI Studio"}
                   </div>
                   <div
                     style={{
@@ -216,9 +224,13 @@ export default function EmbeddingSettingsClient({
                     </span>
                     {p === "transformers"
                       ? "CPU lokal (Tanpa API Key)"
-                      : env.hasGoogleApiKey
-                      ? "GOOGLE_API_KEY OK"
-                      : "API Key belum di-set"}
+                      : p === "google"
+                      ? env.hasGoogleApiKey
+                        ? "GOOGLE_API_KEY OK"
+                        : "API Key belum di-set"
+                      : env.hasReplicateKey
+                      ? "REPLICATE_API_TOKEN OK"
+                      : "REPLICATE_API_TOKEN belum di-set"}
                   </div>
                 </div>
               </label>
