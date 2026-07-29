@@ -26,6 +26,7 @@ export async function GET() {
     presets: EMBEDDING_PRESET_OPTIONS,
     env: {
       hasGoogleApiKey: !!process.env.GOOGLE_API_KEY,
+      hasReplicateApiKey: !!process.env.REPLICATE_API_TOKEN,
     },
   });
 }
@@ -43,9 +44,14 @@ export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as Partial<EmbeddingConfig>;
 
-    if (!body.provider || (body.provider !== "google" && body.provider !== "transformers")) {
+    if (
+      !body.provider ||
+      (body.provider !== "google" &&
+        body.provider !== "transformers" &&
+        body.provider !== "replicate")
+    ) {
       return NextResponse.json(
-        { error: 'Provider embedding harus "google" atau "transformers"' },
+        { error: 'Provider embedding harus "google", "transformers", atau "replicate"' },
         { status: 400 }
       );
     }
