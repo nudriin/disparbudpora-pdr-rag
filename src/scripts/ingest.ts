@@ -28,7 +28,7 @@ import type { EmbeddingsInterface } from "@langchain/core/embeddings";
 import { createClient } from "@supabase/supabase-js";
 // Node.js 20 tidak punya native WebSocket — inject 'ws' untuk Supabase Realtime
 import ws from "ws";
-import { getChromaClient, getOrCreateCollection, resetCollection, CHROMA_COLLECTION_NAME } from "../retrieval/chroma";
+import { getChromaClient, getOrCreateCollection, resetCollection, deleteChunksBySource, CHROMA_COLLECTION_NAME } from "../retrieval/chroma";
 import { parseFileContent } from "../utils/fileParser";
 import { getEmbeddingModel, type EmbeddingConfig, DEFAULT_EMBEDDING_CONFIG } from "../retrieval/embedding";
 import { getEmbeddingConfig } from "../config/settings";
@@ -212,9 +212,10 @@ async function main() {
 
   // 5. Reset jika diminta
   if (RESET_MODE) {
-    console.log("🗑️  Menghapus koleksi ChromaDB...");
+    console.log("🗑️  Menghapus koleksi ChromaDB & data Supabase...");
     await resetCollection();
-    console.log("✅ Koleksi berhasil direset.");
+    await supabase.from("document_sources").delete().not("id", "is", null);
+    console.log("✅ Koleksi ChromaDB & database Supabase berhasil direset.");
   }
 
   // 6. Dapatkan atau buat koleksi
@@ -246,24 +247,46 @@ async function main() {
     console.log(`📄 Memproses: ${doc.fileName}`);
     const startTime = Date.now();
 
-    // 9a. Buat record document_source di Supabase
-    const { data: sourceRecord, error: sourceError } = await supabase
+    // 9a. Cek atau buat record document_source di Supabase (Mencegah Duplikasi)
+    const { data: existingSource } = await supabase
       .from("document_sources")
-      .insert({
-        file_name: doc.fileName,
-        chroma_collection: CHROMA_COLLECTION_NAME,
-        status: "processing",
-        file_size_bytes: doc.sizeBytes,
-        file_hash: doc.hash,
-      })
       .select("id")
-      .single();
+      .eq("file_name", doc.fileName)
+      .maybeSingle();
 
-    if (sourceError || !sourceRecord) {
-      console.error(`   ❌ Gagal buat record Supabase: ${sourceError?.message}`);
-      continue;
+    let sourceId: string;
+
+    if (existingSource) {
+      sourceId = existingSource.id;
+      await supabase
+        .from("document_sources")
+        .update({
+          status: "processing",
+          file_size_bytes: doc.sizeBytes,
+          file_hash: doc.hash,
+        })
+        .eq("id", sourceId);
+
+      await deleteChunksBySource(doc.fileName);
+    } else {
+      const { data: sourceRecord, error: sourceError } = await supabase
+        .from("document_sources")
+        .insert({
+          file_name: doc.fileName,
+          chroma_collection: CHROMA_COLLECTION_NAME,
+          status: "processing",
+          file_size_bytes: doc.sizeBytes,
+          file_hash: doc.hash,
+        })
+        .select("id")
+        .single();
+
+      if (sourceError || !sourceRecord) {
+        console.error(`   ❌ Gagal buat record Supabase: ${sourceError?.message}`);
+        continue;
+      }
+      sourceId = (sourceRecord as { id: string }).id;
     }
-    const sourceId = (sourceRecord as { id: string }).id;
 
     // 9b. Buat ingestion_job
     const { data: jobRaw } = await supabase
