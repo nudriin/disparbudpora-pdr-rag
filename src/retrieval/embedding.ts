@@ -37,6 +37,9 @@ export interface ReplicateEmbeddingsParams extends EmbeddingsParams {
   apiKey?: string;
 }
 
+export const REPLICATE_GEMMA_EMBEDDING_MODEL_FULL =
+  "zsxkib/embedding-gemma-300m:d753bd5a898a96666f233f9a33ab1c3fe6527a7be308e1cc9fdcda46abf3e233";
+
 export class ReplicateEmbeddings extends Embeddings implements ReplicateEmbeddingsParams {
   model: string;
   apiKey?: string;
@@ -44,7 +47,11 @@ export class ReplicateEmbeddings extends Embeddings implements ReplicateEmbeddin
 
   constructor(fields?: ReplicateEmbeddingsParams) {
     super(fields ?? {});
-    this.model = fields?.model ?? "zsxkib/embedding-gemma-300m:d753bd5a898a96666f233f9a33ab1c3fe6527a7be308e1cc9fdcda46abf3e233";
+    let modelName = fields?.model ?? REPLICATE_GEMMA_EMBEDDING_MODEL_FULL;
+    if (modelName === "zsxkib/embedding-gemma-300m" || !modelName.includes(":")) {
+      modelName = REPLICATE_GEMMA_EMBEDDING_MODEL_FULL;
+    }
+    this.model = modelName;
     this.apiKey = fields?.apiKey ?? process.env.REPLICATE_API_TOKEN;
 
     if (!this.apiKey) {
@@ -66,18 +73,34 @@ export class ReplicateEmbeddings extends Embeddings implements ReplicateEmbeddin
 
   async embedQuery(text: string): Promise<number[]> {
     try {
-      const output = await this.client.run(this.model as `${string}/${string}`, {
-        input: { text: text },
-      });
+      let output: any;
+      try {
+        output = await this.client.run(this.model as `${string}/${string}:${string}`, {
+          input: { text: text },
+        });
+      } catch (err: any) {
+        if (err?.status === 422 || err?.message?.includes("invalid input")) {
+          output = await this.client.run(this.model as `${string}/${string}:${string}`, {
+            input: { prompt: text },
+          });
+        } else {
+          throw err;
+        }
+      }
 
       if (Array.isArray(output)) {
         return output as number[];
       }
-      if (typeof output === "object" && output !== null && "embedding" in output) {
-        return (output as { embedding: number[] }).embedding;
-      }
-      if (typeof output === "object" && output !== null && "vector" in output) {
-        return (output as { vector: number[] }).vector;
+      if (typeof output === "object" && output !== null) {
+        if ("embedding" in output && Array.isArray(output.embedding)) {
+          return output.embedding as number[];
+        }
+        if ("vector" in output && Array.isArray(output.vector)) {
+          return output.vector as number[];
+        }
+        if ("output" in output && Array.isArray(output.output)) {
+          return output.output as number[];
+        }
       }
       throw new Error(`Output dari Replicate model ${this.model} tidak berformat array vektor.`);
     } catch (err) {
@@ -99,27 +122,27 @@ export const EMBEDDING_PRESET_OPTIONS: Array<{
   label: string;
   value: EmbeddingConfig;
 }> = [
-    {
-      label: "🟣 Replicate Cloud — zsxkib/embedding-gemma-300m (768-dim, Cepat & Tanpa Quota Google)",
-      value: { provider: "replicate", model: "zsxkib/embedding-gemma-300m", dimensions: 768 },
-    },
-    {
-      label: "🟢 Transformers.js (GRATIS, Lokal) — multilingual-e5-small (384-dim)",
-      value: { provider: "transformers", model: "Xenova/multilingual-e5-small", dimensions: 384 },
-    },
-    {
-      label: "🟢 Transformers.js (GRATIS, Lokal) — all-MiniLM-L6-v2 (384-dim)",
-      value: { provider: "transformers", model: "Xenova/all-MiniLM-L6-v2", dimensions: 384 },
-    },
-    {
-      label: "🔵 Google AI Studio — gemini-embedding-001 (3072-dim)",
-      value: { provider: "google", model: "gemini-embedding-001", dimensions: 3072 },
-    },
-    {
-      label: "🔵 Google AI Studio — text-embedding-004 (768-dim)",
-      value: { provider: "google", model: "text-embedding-004", dimensions: 768 },
-    },
-  ];
+  {
+    label: "🟣 Replicate Cloud — zsxkib/embedding-gemma-300m (768-dim, Cepat & Tanpa Quota Google)",
+    value: { provider: "replicate", model: REPLICATE_GEMMA_EMBEDDING_MODEL_FULL, dimensions: 768 },
+  },
+  {
+    label: "🟢 Transformers.js (GRATIS, Lokal) — multilingual-e5-small (384-dim)",
+    value: { provider: "transformers", model: "Xenova/multilingual-e5-small", dimensions: 384 },
+  },
+  {
+    label: "🟢 Transformers.js (GRATIS, Lokal) — all-MiniLM-L6-v2 (384-dim)",
+    value: { provider: "transformers", model: "Xenova/all-MiniLM-L6-v2", dimensions: 384 },
+  },
+  {
+    label: "🔵 Google AI Studio — gemini-embedding-001 (3072-dim)",
+    value: { provider: "google", model: "gemini-embedding-001", dimensions: 3072 },
+  },
+  {
+    label: "🔵 Google AI Studio — text-embedding-004 (768-dim)",
+    value: { provider: "google", model: "text-embedding-004", dimensions: 768 },
+  },
+];
 
 // Singleton cache instance
 let _cachedEmbeddings: EmbeddingsInterface | null = null;
